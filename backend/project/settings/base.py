@@ -223,6 +223,7 @@ JAZZMIN_SETTINGS = {
     "icons": {
         "auth": "fas fa-users-cog",
         "auth.Group": "fas fa-users",
+        "admin.LogEntry": "fas fa-book",
         "users.CustomUser": "fas fa-user",
         "finance.Transaction": "fas fa-money-check-alt",
         "finance.UserAccount": "fas fa-wallet",
