@@ -125,7 +125,7 @@ class Transaction(models.Model):
             f"Amount {CURRENCY}. {self.amount} via {self.means} (Ref: {self.reference})"
         )
 
-    def save(self, *args, **kwargs):
+    async def save(self, *args, **kwargs):
         # if self.id:
         #    raise Exception("Transaction cannot be edited")
         # import traceback
@@ -139,8 +139,8 @@ class Transaction(models.Model):
             self.user.account.balance += self.amount
         else:
             self.user.account.balance -= self.amount
-        self.user.account.save()
-        super().save(*args, **kwargs)
+        await self.user.account.asave()
+        await super().asave(*args, **kwargs)
 
 
 class ExtraFee(models.Model):

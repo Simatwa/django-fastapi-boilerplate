@@ -24,7 +24,10 @@ router = APIRouter(prefix="/business", tags=["Business"])
 
 @router.get("/about", name="Business information")
 async def get_hospital_details() -> BusinessAbout:
-    return await jsonable_encoder(About.objects.all().alast())
+    about = await About.objects.all().alast()
+    if about is not None:
+        return jsonable_encoder(about)
+    raise HTTPException(status_code=404, detail="Business detail is not yet available.")
 
 
 # GENERAL SITE DATA
