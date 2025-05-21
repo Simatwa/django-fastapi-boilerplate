@@ -73,7 +73,7 @@ class CustomUser(AbstractUser):
 
     token = models.CharField(
         _("token"),
-        help_text=_("Token for validation"),
+        help_text=_("User auth token"),
         null=True,
         blank=True,
         max_length=40,

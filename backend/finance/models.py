@@ -125,7 +125,7 @@ class Transaction(models.Model):
             f"Amount {CURRENCY}. {self.amount} via {self.means} (Ref: {self.reference})"
         )
 
-    async def save(self, *args, **kwargs):
+    async def asave(self, *args, **kwargs):
         # if self.id:
         #    raise Exception("Transaction cannot be edited")
         # import traceback

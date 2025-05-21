@@ -2,7 +2,7 @@ from unittest import TestCase
 from api.tests import client
 from api.tests.utils import get_model_example
 from api import v1_router
-from api.v1.business.models import NewVisitorMessage, BusinessGallery, BusinessAbout
+from api.v1.business.models import NewVisitorMessage, BusinessAbout
 from external.models import About, Document
 from management.models import AppUtility
 from django.db import IntegrityError

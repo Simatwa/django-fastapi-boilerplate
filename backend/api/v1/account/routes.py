@@ -37,7 +37,7 @@ router = APIRouter(
 )
 
 
-@router.post("/token", name="User account token")
+@router.post("/token", name="User auth token")
 async def fetch_token(
     form_data: Annotated[OAuth2PasswordRequestFormStrict, Depends()]
 ) -> TokenAuth:
@@ -46,7 +46,7 @@ async def fetch_token(
     """
     try:
         user = await CustomUser.objects.aget(username=form_data.username)
-        if user.check_password(form_data.password):
+        if await user.acheck_password(form_data.password):
             if user.token is None:
                 user.token = generate_token()
                 await user.asave()
@@ -133,15 +133,15 @@ async def get_financial_transactions(
     ]
 
 
-@router.get("/mpesa-payment-account-details", name="Get mpesa payment account details")
+@router.get("/mpesa-payment-account-details", name="M-Pesa payment account details")
 async def get_mpesa_payment_account_details(
     user: Annotated[CustomUser, Depends(get_user)]
 ) -> PaymentAccountDetails:
     """Get mpesa payment account details specifically for current user"""
     try:
-        account = await Account.objects.aget(
+        account = await Account.objects.filter(
             Q(name__icontains="m-pesa") | Q(name__icontains="mpesa")
-        )
+        ).alast()
         return PaymentAccountDetails(
             name=account.name,
             paybill_number=account.paybill_number,
@@ -161,7 +161,7 @@ async def get_mpesa_payment_account_details(
         )
 
 
-@router.get("/other-payment-account-details", name="Get other payment account details")
+@router.get("/other-payment-account-details", name="Other payment account details")
 async def get_payment_account_details(
     user: Annotated[CustomUser, Depends(get_user)]
 ) -> list[PaymentAccountDetails]:
@@ -193,7 +193,7 @@ async def send_mpesa_popup_to(
 
     async def send_popup(phone_number, amount):
         """TODO: Request payment using Daraja API"""
-        mpesa_details = await Account.objects.filter(name__icontains="m-pesa").afirst()
+        mpesa_details = await Account.objects.filter(name__icontains="m-pesa").alast()
         assert mpesa_details is not None, "M-PESA account details not found"
         account_number = mpesa_details.account_number % dict(
             id=user.id,
@@ -216,7 +216,6 @@ async def send_mpesa_popup_to(
             type=Transaction.TransactionType.DEPOSIT.value,
             amount=amount,
             means=Transaction.TransactionMeans.MPESA.value,
-            reference=generate_password_reset_token(),
         )
         await new_transaction.asave()
 
@@ -224,7 +223,7 @@ async def send_mpesa_popup_to(
     return ProcessFeedback(detail="M-pesa popup sent successfully.")
 
 
-@router.get("/password/send-reset-token", name="Send password reset token")
+@router.get("/password/send-password-reset-token", name="Send password reset token")
 async def reset_password(
     identity: Annotated[str, Query(description="Username or email address")]
 ) -> ProcessFeedback:
@@ -243,7 +242,7 @@ async def reset_password(
                 token=generate_password_reset_token(),
             )
         await auth_token.asave()
-        asyncio.to_thread(
+        await asyncio.to_thread(
             send_email,
             **dict(
                 subject="Password Reset Token",
@@ -267,12 +266,14 @@ async def reset_password(
 
 @router.post("/password/reset", name="Set new account password")
 async def reset_password(info: ResetPassword) -> ProcessFeedback:
-    """Resets user password"""
+    """Resets user account password"""
     try:
-        auth_token = await AuthToken.objects.aget(token=info.token)
+        auth_token = await AuthToken.objects.select_related("user").aget(
+            token=info.token
+        )
         if auth_token.is_expired():
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
+                status_code=status.HTTP_403_FORBIDDEN,
                 detail="Token has expired.",
             )
         user = auth_token.user
