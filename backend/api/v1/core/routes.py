@@ -36,6 +36,7 @@ from django.db.utils import IntegrityError
 
 from typing import Annotated, List
 from fastapi.encoders import jsonable_encoder
+import asyncio
 
 router = APIRouter(prefix="/core", tags=["Core"])
 
@@ -43,7 +44,7 @@ router = APIRouter(prefix="/core", tags=["Core"])
 
 
 @router.get("/personal/messages", name="Get personal messages")
-def get_personal_messages(
+async def get_personal_messages(
     user: Annotated[CustomUser, Depends(get_user)],
     is_read: Annotated[bool, Query(description="Is read filter")] = None,
     category: Annotated[MessageCategory, Query(description="Messages category")] = None,
@@ -56,20 +57,20 @@ def get_personal_messages(
         search_filter["category"] = category.value
     return [
         jsonable_encoder(message)
-        for message in PersonalMessage.objects.filter(**search_filter)
+        async for message in PersonalMessage.objects.filter(**search_filter)
         .order_by("-created_at")
         .all()[:30]
     ]
 
 
 @router.patch("/personal/message/mark-read/{id}", name="Mark personal message as read")
-def mark_personal_message_read(
+async def mark_personal_message_read(
     id: Annotated[int, Path(description="Personal message ID")],
     user: Annotated[CustomUser, Depends(get_user)],
 ) -> ProcessFeedback:
     """Mark a personal message as read"""
     try:
-        PersonalMessage.objects.filter(id=id, user=user).update(is_read=True)
+        await PersonalMessage.objects.filter(id=id, user=user).aupdate(is_read=True)
         return ProcessFeedback(detail="Message marked as read successfully")
     except PersonalMessage.DoesNotExist:
         raise HTTPException(
@@ -79,7 +80,7 @@ def mark_personal_message_read(
 
 
 @router.get("/group/messages", name="Get group messages")
-def get_group_messages(
+async def get_group_messages(
     user: Annotated[CustomUser, Depends(get_user)],
     is_read: Annotated[bool, Query(description="Is read filter")] = None,
     category: Annotated[MessageCategory, Query(description="Messages category")] = None,
@@ -87,7 +88,7 @@ def get_group_messages(
     """Messages from unit group that user is a member"""
     message_list = []
     search_filter = dict(
-        groups__in=[member_group for member_group in user.member_groups.all()]
+        groups__in=[member_group async for member_group in user.member_groups.all()]
     )
     if is_read is not None:
         if is_read:
@@ -97,29 +98,32 @@ def get_group_messages(
     if category is not None:
         search_filter["category"] = category.value
 
-    for message in (
+    async for message in (
         GroupMessage.objects.prefetch_related("read_by")
         .filter(**search_filter)
         .order_by("-created_at")
         .all()[:30]
     ):
         message_dict = message.model_dump()
-        message_dict["is_read"] = message.read_by.contains(user)
+        message_dict["is_read"] = await message.read_by.acontains(user)
         message_list.append(message_dict)
     return message_list
 
 
 @router.patch("/group/message/mark-read/{id}", name="Mark group message as read")
-def mark_group_message_read(
+async def mark_group_message_read(
     id: Annotated[int, Path(description="Group message ID")],
     user: Annotated[CustomUser, Depends(get_user)],
 ) -> ProcessFeedback:
     """Mark a particular group message as read"""
     try:
-        GroupMessage.objects.prefetch_related("read_by").get(
+        target_message = await GroupMessage.objects.prefetch_related("read_by").aget(
             id=id,
-            groups__in=[member_group for member_group in user.member_groups.all()],
-        ).read_by.add(user)
+            groups__in=[
+                member_group async for member_group in user.member_groups.all()
+            ],
+        )
+        await target_message.read_by.aadd(user)
         return ProcessFeedback(detail="Message marked as read successfully.")
     except GroupMessage.DoesNotExist:
         raise HTTPException(
@@ -129,7 +133,7 @@ def mark_group_message_read(
 
 
 @router.get("/concerns", name="Get concerns")
-def get_concerns(
+async def get_concerns(
     user: Annotated[CustomUser, Depends(get_user)],
     status: Annotated[
         Concern.ConcernStatus, Query(description="Concern status")
@@ -141,34 +145,34 @@ def get_concerns(
         search_filter["status"] = status.value
     return [
         jsonable_encoder(concern)
-        for concern in Concern.objects.filter(**search_filter)
+        async for concern in Concern.objects.filter(**search_filter)
         .order_by("-created_at")
         .all()[:30]
     ]
 
 
 @router.post("/concern/new", name="Add new concern")
-def add_new_concern(
+async def add_new_concern(
     concern: NewConcern, user: Annotated[CustomUser, Depends(get_user)]
 ) -> ConcernDetails:
     """Add new concern"""
     new_concern_dict = concern.model_dump()
     new_concern_dict["user"] = user
-    new_concern = Concern.objects.create(**new_concern_dict)
-    new_concern.save()
+    new_concern = await Concern.objects.acreate(**new_concern_dict)
+    await new_concern.asave()
     # new_concern.refresh_from_db()
     return new_concern.model_dump()
 
 
 @router.patch("/concern/{id}", name="Update existing concern")
-def update_existing_concern(
+async def update_existing_concern(
     id: Annotated[int, Path(description="Concern ID")],
     concern: UpdateConcern,
     user: Annotated[CustomUser, Depends(get_user)],
 ) -> ConcernDetails:
     """Update existing concern"""
     try:
-        target_concern = Concern.objects.get(
+        target_concern = await Concern.objects.aget(
             id=id,
             user=user,
             status__in=[
@@ -178,7 +182,7 @@ def update_existing_concern(
         )
         target_concern.about = get_value(concern.about, target_concern.about)
         target_concern.details = get_value(concern.details, target_concern.details)
-        target_concern.save()
+        await target_concern.asave()
         return target_concern.model_dump()
     except Concern.DoesNotExist:
         raise HTTPException(
@@ -188,13 +192,13 @@ def update_existing_concern(
 
 
 @router.get("/concern/{id}", name="Get concern details")
-def get_concern_details(
+async def get_concern_details(
     id: Annotated[int, Path(description="Concern ID")],
     user: Annotated[CustomUser, Depends(get_user)],
 ) -> ConcernDetails:
     """Get particular concern details"""
     try:
-        target_concern = Concern.objects.get(id=id, user=user)
+        target_concern = await Concern.objects.aget(id=id, user=user)
         return target_concern.model_dump()
     except Concern.DoesNotExist:
         raise HTTPException(
@@ -204,14 +208,14 @@ def get_concern_details(
 
 
 @router.delete("/concern/{id}", name="Delete concern")
-def get_concern_details(
+async def get_concern_details(
     id: Annotated[int, Path(description="Concern ID")],
     user: Annotated[CustomUser, Depends(get_user)],
 ) -> ProcessFeedback:
     """Delete a particular concern"""
     try:
-        target_concern = Concern.objects.get(id=id, user=user)
-        target_concern.delete()
+        target_concern = await Concern.objects.aget(id=id, user=user)
+        await target_concern.adelete()
         return ProcessFeedback(detail="Concern deleted successfully.")
     except Concern.DoesNotExist:
         raise HTTPException(
@@ -221,14 +225,14 @@ def get_concern_details(
 
 
 @router.post("/feedback", name="New feedback")
-def add_new_feedback(
+async def add_new_feedback(
     user: Annotated[CustomUser, Depends(get_user)], feedback: NewUserFeedback
 ) -> UserFeedbackDetails:
     try:
-        new_feedback = ServiceFeedback.objects.create(
+        new_feedback = await ServiceFeedback.objects.acreate(
             sender=user, message=feedback.message, rate=feedback.rate.value
         )
-        new_feedback.save()
+        await new_feedback.asave()
         return new_feedback.model_dump()
     except IntegrityError:
         raise HTTPException(
@@ -238,16 +242,16 @@ def add_new_feedback(
 
 
 @router.patch("/feedback", name="Update feedback")
-def update_feedback(
+async def update_feedback(
     user: Annotated[CustomUser, Depends(get_user)],
     feedback: NewUserFeedback,
 ) -> UserFeedbackDetails:
     """Update user service-feedback"""
     try:
-        target_feedback = ServiceFeedback.objects.get(sender=user)
+        target_feedback = await ServiceFeedback.objects.aget(sender=user)
         target_feedback.message = get_value(feedback.message, target_feedback.message)
         target_feedback.rate = get_value(feedback.rate.value, target_feedback.rate)
-        target_feedback.save()
+        await target_feedback.asave()
         return target_feedback.model_dump()
     except ServiceFeedback.DoesNotExist:
         raise HTTPException(
@@ -257,12 +261,12 @@ def update_feedback(
 
 
 @router.get("/feedback", name="Get feedback details")
-def get_feedback_details(
+async def get_feedback_details(
     user: Annotated[CustomUser, Depends(get_user)],
 ) -> UserFeedbackDetails:
     """Get user service-feedback"""
     try:
-        target_feedback = ServiceFeedback.objects.get(sender=user)
+        target_feedback = await ServiceFeedback.objects.aget(sender=user)
         return target_feedback.model_dump()
     except ServiceFeedback.DoesNotExist:
         raise HTTPException(
@@ -272,13 +276,13 @@ def get_feedback_details(
 
 
 @router.delete("/feedback", name="Delete feedback")
-def delete_feedback(
+async def delete_feedback(
     user: Annotated[CustomUser, Depends(get_user)],
 ) -> ProcessFeedback:
     """Delete user feedback"""
     try:
-        target_feedback = ServiceFeedback.objects.get(sender=user)
-        target_feedback.delete()
+        target_feedback = await ServiceFeedback.objects.aget(sender=user)
+        await target_feedback.adelete()
         return ProcessFeedback(detail="Feedback deleted successfully.")
     except ServiceFeedback.DoesNotExist:
         raise HTTPException(
