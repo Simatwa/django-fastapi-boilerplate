@@ -252,6 +252,7 @@ class AppUtility(models.Model):
         help_text=_("Name of this utility"),
         null=False,
         blank=False,
+        unique=True,
     )
     description = RichTextField(
         verbose_name=_("Description"),

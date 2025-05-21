@@ -39,10 +39,10 @@ async def get_hospital_details() -> BusinessAbout:
 async def new_visitor_message(message: NewVisitorMessage) -> ProcessFeedback:
     new_message = await Message.objects.acreate(**message.model_dump())
     await new_message.asave()
-    asyncio.run(
+    await asyncio.to_thread(
         send_email,
         **dict(
-            "Message Received Confirmation",
+            subject="Message Received Confirmation",
             recipient=new_message.email,
             template_name="email/message_received_confirmation",
             context=dict(message=new_message),

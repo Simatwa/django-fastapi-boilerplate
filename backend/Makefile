@@ -1,4 +1,4 @@
-.PHONY: install setup developmentsuperuser runserver runserver-prod default
+.PHONY: install setup developmentsuperuser test runserver runserver-prod default
 
 default: install setup developmentsuperuser runserver-api
 
@@ -16,6 +16,9 @@ setup:
 developmentsuperuser:
 	python manage.py createsuperuser --username developer \
 	 --email developer@localhost.domain --noinput
+
+test:
+	python -m unittest discover -s api/tests -p 'test_*.py' -f -v
 
 runserver:
 	python manage.py runserver
