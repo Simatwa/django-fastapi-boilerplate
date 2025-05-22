@@ -10,6 +10,7 @@ from fastapi import FastAPI, Request, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 
+# Django
 # Setup django first before importing any module that will require any of its resource
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "project.settings")
@@ -64,15 +65,13 @@ app.add_middleware(
 app.mount(STATIC_URL[:-1], StaticFiles(directory=STATIC_ROOT), name="static")
 app.mount(MEDIA_URL[:-1], StaticFiles(directory=MEDIA_ROOT), name="media")
 
-from django.core.handlers.wsgi import WSGIHandler
-
-from fastapi.middleware.wsgi import WSGIMiddleware
+from django.core.handlers.asgi import ASGIHandler
 
 # Include API router
 app.include_router(v1_router, prefix=env_setting.API_PREFIX)
 
 # Mount django for admin & account creation views ie. /d/admin & /d/user/* etc
-app.mount("/d", app=WSGIMiddleware(WSGIHandler()), name="django")
+app.mount("/d", app=ASGIHandler(), name="django")
 
 if FRONTEND_DIR:
     # TODO: Incase of using React, implement a unified approach of handling these requests
