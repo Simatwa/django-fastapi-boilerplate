@@ -15,30 +15,6 @@ from django.contrib.admin.models import LogEntry
 # Register your models here.
 
 
-@admin.register(LogEntry)
-class CustomLogEntryAdmin(admin.ModelAdmin):
-    list_display = ("action_time", "user", "content_type", "object_id", "action_flag")
-    search_fields = [
-        "user__username",
-        "content_type__model",
-        "change_message",
-        "object_repr",
-    ]
-    list_filter = (
-        "user",
-        "action_flag",
-        "content_type",
-        "action_time",
-    )
-    date_hierarchy = "action_time"
-
-    def has_add_permission(self, request):
-        return False
-
-    def has_change_permission(self, request, obj=...):
-        return False
-
-
 @admin.register(MemberGroup)
 class MemberGroupAdmin(DevelopmentImportExportModelAdmin):
     list_display = ("name", "description", "social_media_link")
