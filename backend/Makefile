@@ -20,6 +20,9 @@ developmentsuperuser:
 test:
 	python -m unittest discover -s api/tests -p 'test_*.py' -f -v
 
+pytest:
+	pytest api/tests/* -xv
+
 runserver:
 	python manage.py runserver
 

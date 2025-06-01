@@ -23,7 +23,7 @@ router = APIRouter(prefix="/business", tags=["Business"])
 
 
 @router.get("/about", name="Business information")
-async def get_hospital_details() -> BusinessAbout:
+async def get_business_details() -> BusinessAbout:
     about = await About.objects.all().alast()
     if about is not None:
         return jsonable_encoder(about)
