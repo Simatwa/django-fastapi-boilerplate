@@ -2,8 +2,8 @@
 
 <p align="center">
   <a href="#"><img alt="Python Version" src="https://img.shields.io/static/v1?logo=python&color=Blue&message=3.13&label=Python"/></a>
-  <a href="#"><img alt="Backend Admin - Django" src="https://img.shields.io/static/v1?logo=django&color=Blue&message=Admin&label=Django"/></a>
-  <a href="#"><img alt="Backend API - FastAPI" src="https://img.shields.io/static/v1?logo=fastapi&color=Blue&message=RestAPI&label=FastAPI"/></a>
+  <a href="#"><img alt="Backend Admin - Django" src="https://img.shields.io/static/v1?logo=django&color=Blue&message=v5.1.6&label=Django"/></a>
+  <a href="#"><img alt="Backend API - FastAPI" src="https://img.shields.io/static/v1?logo=fastapi&color=Blue&message=v0.115.11&label=FastAPI"/></a>
   <!--
   <a href="#"><img alt="Frontend - React" src="https://img.shields.io/static/v1?logo=react&color=Blue&message=Frontend&label=React"/></a>
   <a href="https://github.com/Simatwa/house-rental-management-system/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/static/v1?logo=MIT&color=Blue&message=GPLv3&label=License"/></a>
