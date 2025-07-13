@@ -1,8 +1,43 @@
-# django-fastapi-boilerplate
+<h1 align="center">django-fastapi-boilerplate</h1>
+
+<p align="center">
+  <a href="#"><img alt="Python Version" src="https://img.shields.io/static/v1?logo=python&color=Blue&message=3.13&label=Python"/></a>
+  <a href="#"><img alt="Backend Admin - Django" src="https://img.shields.io/static/v1?logo=django&color=Blue&message=Admin&label=Django"/></a>
+  <a href="#"><img alt="Backend API - FastAPI" src="https://img.shields.io/static/v1?logo=fastapi&color=Blue&message=RestAPI&label=FastAPI"/></a>
+  <!--
+  <a href="#"><img alt="Frontend - React" src="https://img.shields.io/static/v1?logo=react&color=Blue&message=Frontend&label=React"/></a>
+  <a href="https://github.com/Simatwa/house-rental-management-system/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/static/v1?logo=MIT&color=Blue&message=GPLv3&label=License"/></a>
+  -->
+</p>
+
 Repository for quickly jumpstarting web projects that uses both Django &amp; FastAPI frameworks for backend.
 
+| Page       |   Screenshot   |
+|------------|----------------|
+| Landing    | ![Landin page demo](https://raw.githubusercontent.com/Simatwa/management-systems/refs/heads/main/assets/django-fastapi-boilerplate/landing-page.png)  |
+| Admin      |     ![Admin page demo](https://raw.githubusercontent.com/Simatwa/management-systems/refs/heads/main/assets/django-fastapi-boilerplate/dashboard.png) |
+| OpenAPI Docs | ![OpenAPI docs page demo](https://raw.githubusercontent.com/Simatwa/management-systems/refs/heads/main/assets/django-fastapi-boilerplate/openapi-docs.png) |
 
-# Backend Directory Structure
+# Features
+
+- Common django apps ie.
+    - [Users](backend/users) - User accounts
+    - [Management](backend/management) - Message management, crucial app info etc.
+    - [Finance](backend/finance) - Money related stuff
+    - [External](backend/external) - App information etc
+- FastAPI endpoints
+    - [Business](backend/api/v1/business) - Provides app information
+    - [Account](backend/api/v1/account) - User account creation & management
+    - [Core](backend/api/v1/core) - User level actions - *templated*
+- Admin dashboard using [Django-Jazzmin](https://github.com/farridav/django-jazzmin)
+
+<details open>
+
+<summary>
+
+<h3>Backend Directory Structure</h3>
+
+</summary>
 
 ```
 backend
@@ -116,71 +151,7 @@ backend
 
 ```
 
-# Frontend Directory Structure
+</details>
 
-Typical frontend directory structure using React might look like:
-
-```
-frontend
-├── dist.ready
-│   ├── assets
-│   │   ├── index-8zeza7Vl.css
-│   │   └── index-DrVtJ0P4.js
-│   └── index.html
-├── eslint.config.js
-├── index.html
-├── package.json
-├── package-lock.json
-├── postcss.config.js
-├── src
-│   ├── api
-│   │   ├── auth.ts
-│   │   ├── client.ts
-│   │   ├── routes
-│   │   │   ├── account.ts
-│   │   │   ├── business.ts
-│   │   │   └── core.ts
-│   │   └── types
-│   │       ├── account.ts
-│   │       ├── auth.ts
-│   │       ├── business.ts
-│   │       └── core.ts
-│   ├── App.tsx
-│   ├── components
-│   │   ├── auth
-│   │   │   ├── LoginForm.tsx
-│   │   │   ├── PasswordInput.tsx
-│   │   │   ├── RegisterForm.tsx
-│   │   │   └── ResetPasswordForm.tsx
-│   │   ├── BookCard.tsx
-│   │   ├── BookSearch.tsx
-│   │   ├── ContactForm.tsx
-│   │   ├── dashboard
-│   │   │   ├── BookSuggestions.tsx
-│   │   │   ├── BorrowedBooks.tsx
-│   │   │   ├── Concerns.tsx
-│   │   │   ├── Feedback.tsx
-│   │   │   ├── Layout.tsx
-│   │   │   └── Messages.tsx
-│   │   ├── FAQSection.tsx
-│   │   ├── FeedbackCard.tsx
-│   │   ├── Modal.tsx
-│   │   └── Navbar.tsx
-│   ├── index.css
-│   ├── main.tsx
-│   ├── pages
-│   │   ├── AuthPage.tsx
-│   │   ├── DashboardPage.tsx
-│   │   └── HomePage.tsx
-│   ├── utils
-│   │   ├── auth.ts
-│   │   └── format.ts
-│   └── vite-env.d.ts
-├── tailwind.config.js
-├── tsconfig.app.json
-├── tsconfig.json
-├── tsconfig.node.json
-└── vite.config.ts
-
-12 directories, 48 files
-```
+> [!IMPORTANT]
+> The frontend directory declared in [.env](env.example) must have `index.html` file.

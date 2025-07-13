@@ -32,7 +32,7 @@ async def get_business_details() -> BusinessAbout:
 
 # GENERAL SITE DATA
 
-# TODO: Implement routers for exposing ther general site data
+# TODO: Implement routers for exposing the general site data
 
 
 @router.post("/visitor-message", name="New visitor message")
