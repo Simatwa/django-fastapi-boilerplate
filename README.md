@@ -31,7 +31,7 @@ Repository for quickly jumpstarting web projects that uses both Django &amp; Fas
     - [Core](backend/api/v1/core) - User level actions - *templated*
 - Admin dashboard using [Django-Jazzmin](https://github.com/farridav/django-jazzmin)
 
-<details open>
+<details>
 
 <summary>
 
