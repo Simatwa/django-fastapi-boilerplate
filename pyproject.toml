@@ -12,7 +12,7 @@ repository = "https://github.com/Simatwa/django-fastapi-boilerplate"
 documentation = "https://github.com/Simatwa/django-fastapi-boilerplate"
 
 [tool.ruff]
-line-length = 110
+line-length = 80
 
 [tool.ruff.lint]
 select = [
