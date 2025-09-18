@@ -1,5 +1,4 @@
 from datetime import date, datetime
-from typing import Optional
 
 from external.models import ServiceFeedback
 from management.models import AppUtility
