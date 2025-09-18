@@ -1,8 +1,16 @@
-from pydantic import BaseModel, Field, field_validator, Field, EmailStr, HttpUrl
+from datetime import date, datetime
+from typing import Optional
+
 from external.models import ServiceFeedback
 from management.models import AppUtility
-from typing import Optional
-from datetime import date, datetime
+from pydantic import (
+    BaseModel,
+    EmailStr,
+    Field,
+    HttpUrl,
+    field_validator,
+)
+
 from api.v1.utils import get_document_path
 
 
@@ -13,16 +21,16 @@ class BusinessAbout(BaseModel):
     slogan: str
     address: str
     founded_in: date
-    email: Optional[str] = None
-    phone_number: Optional[str] = None
-    facebook: Optional[str] = None
-    twitter: Optional[str] = None
-    linkedin: Optional[str] = None
-    instagram: Optional[str] = None
-    tiktok: Optional[str] = None
-    youtube: Optional[str] = None
-    logo: Optional[str] = None
-    wallpaper: Optional[str] = None
+    email: str | None = None
+    phone_number: str | None = None
+    facebook: str | None = None
+    twitter: str | None = None
+    linkedin: str | None = None
+    instagram: str | None = None
+    tiktok: str | None = None
+    youtube: str | None = None
+    logo: str | None = None
+    wallpaper: str | None = None
 
     @field_validator("logo", "wallpaper")
     def validate_cover_photo(value):
@@ -33,7 +41,11 @@ class BusinessAbout(BaseModel):
             "example": {
                 "name": "Library Management System",
                 "short_name": "Library MS",
-                "details": "Welcome to our Library Management System. We are committed to providing seamless access to books and resources for our community.",
+                "details": (
+                    "Welcome to our Library Management System. We are committed"
+                    " to providing seamless access to books and resources for "
+                    "our community."
+                ),
                 "slogan": "Empowering knowledge, one book at a time.",
                 "address": "456 Knowledge Lane, Nairobi - Kenya",
                 "founded_in": "2023-01-01",
@@ -68,9 +80,9 @@ class NewVisitorMessage(BaseModel):
 
 class ShallowUserInfo(BaseModel):
     username: str
-    first_name: Optional[str] = None
-    last_name: Optional[str] = None
-    profile: Optional[str] = None
+    first_name: str | None = None
+    last_name: str | None = None
+    profile: str | None = None
 
     class Config:
         json_schema_extra = {
@@ -111,8 +123,10 @@ class BusinessGallery(BaseModel):
     title: str
     details: str
     location_name: str
-    youtube_video_link: Optional[HttpUrl] = Field(None, description="Youtube video link")
-    picture: Optional[str] = None
+    youtube_video_link: HttpUrl | None = Field(
+        None, description="Youtube video link"
+    )
+    picture: str | None = None
     date: date
 
     @field_validator("picture")
@@ -141,8 +155,8 @@ class FAQDetails(BaseModel):
             "example": {
                 "question": "Can I suggest new books for the library to add?",
                 "answer": (
-                    "Yes, you can submit book suggestions through the 'Suggest a Book' "
-                    "feature available in your account dashboard.",
+                    "Yes, you can submit book suggestions through the 'Suggest "
+                    "a Book' feature available in your account dashboard.",
                 ),
             }
         }

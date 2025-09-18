@@ -1,6 +1,6 @@
 from django import forms
+
 from management.models import AppUtility
-import re
 
 
 class AppUtilityForm(forms.ModelForm):

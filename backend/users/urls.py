@@ -1,6 +1,13 @@
 from django.urls import path
-from users.views import Login, CreateUser, UpdateUser, DeleteUser, Success, Logout
 
+from users.views import (
+    CreateUser,
+    DeleteUser,
+    Login,
+    Logout,
+    Success,
+    UpdateUser,
+)
 
 urlpatterns = [
     path("success", Success.as_view(), name="success"),
@@ -11,5 +18,6 @@ urlpatterns = [
     path("logout", Logout.as_view(), name="logout"),
 ]
 
-urlpatterns = []  # Comment out this line to make above urlpatterns recognizable.
+urlpatterns = []  # Comment out this line to make above
+#                   urlpatterns recognizable
 app_name = "users"

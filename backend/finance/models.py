@@ -2,21 +2,33 @@ from django.db import models
 
 # Create your models here.
 from django.utils.translation import gettext_lazy as _
-from project.utils import EnumWithChoices
 from project.settings import CURRENCY
-from project.utils import generate_random_token
+from project.utils import EnumWithChoices, generate_random_token
 
 
 class Account(models.Model):
-    name = models.CharField(max_length=50, help_text=_("Account name e.g M-PESA"))
-    paybill_number = models.CharField(max_length=100, help_text=_("Paybill number e.g 247247"))
+    name = models.CharField(
+        max_length=50, help_text=_("Account name e.g M-PESA")
+    )
+    paybill_number = models.CharField(
+        max_length=100, help_text=_("Paybill number e.g 247247")
+    )
     account_number = models.CharField(
         max_length=100,
         default="%(username)s",
-        help_text=_("Any or combination of %(id)d, %(username)s,%(phone_number)s, %(email)s etc"),
+        help_text=_(
+            "Any or combination of %(id)d, %(username)s,%(phone_number)s,"
+            " %(email)s etc"
+        ),
     )
-    is_active = models.BooleanField(default=True, help_text=_("Account active status"))
-    details = models.TextField(null=True, blank=True, help_text=_("Information related to this account."))
+    is_active = models.BooleanField(
+        default=True, help_text=_("Account active status")
+    )
+    details = models.TextField(
+        null=True,
+        blank=True,
+        help_text=_("Information related to this account."),
+    )
     updated_at = models.DateTimeField(
         auto_now=True,
         verbose_name=_("updated at"),
@@ -36,7 +48,12 @@ class Account(models.Model):
 
 
 class UserAccount(models.Model):
-    balance = models.DecimalField(max_digits=8, decimal_places=2, help_text=_("Account balance"), default=0)
+    balance = models.DecimalField(
+        max_digits=8,
+        decimal_places=2,
+        help_text=_("Account balance"),
+        default=0,
+    )
     updated_at = models.DateTimeField(
         auto_now=True,
         verbose_name=_("updated at"),
@@ -113,7 +130,10 @@ class Transaction(models.Model):
     )
 
     def __str__(self):
-        return f"Amount {CURRENCY}. {self.amount} via {self.means} (Ref: {self.reference})"
+        return (
+            f"Amount {CURRENCY}. {self.amount} via {self.means} "
+            f"(Ref: {self.reference})"
+        )
 
     async def asave(self, *args, **kwargs):
         # if self.id:
@@ -122,7 +142,10 @@ class Transaction(models.Model):
         # traceback.print_stack()
         # print(self.amount)
         # Race condition here
-        if self.type == self.TransactionType.DEPOSIT.value or self.type == self.TransactionType.REFUND.value:
+        if (
+            self.type == self.TransactionType.DEPOSIT.value
+            or self.type == self.TransactionType.REFUND.value
+        ):
             self.user.account.balance += self.amount
         else:
             self.user.account.balance -= self.amount
@@ -143,7 +166,11 @@ class ExtraFee(models.Model):
         unique=True,
     )
     details = models.TextField(help_text=_("What is this fee for?"))
-    amount = models.DecimalField(max_digits=8, decimal_places=2, help_text=_(f"Fee amount in {CURRENCY}"))
+    amount = models.DecimalField(
+        max_digits=8,
+        decimal_places=2,
+        help_text=_(f"Fee amount in {CURRENCY}"),
+    )
     updated_at = models.DateTimeField(
         auto_now=True,
         verbose_name=_("updated at"),

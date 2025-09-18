@@ -1,17 +1,21 @@
-from django.db import models
-from users.models import CustomUser
-from django.utils.translation import gettext_lazy as _
-from project.utils import generate_document_filepath, EnumWithChoices
-from django.utils import timezone
 from ckeditor.fields import RichTextField
+from django.db import models
+from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 from project.settings import env_setting
+from project.utils import EnumWithChoices, generate_document_filepath
+from users.models import CustomUser
 
 # Create your models here.
 
 
 class About(models.Model):
-    name = models.CharField(max_length=40, help_text="The brand name", default="Library MS")
-    short_name = models.CharField(max_length=30, help_text="Brand abbreviated name", default="LMS")
+    name = models.CharField(
+        max_length=40, help_text="The brand name", default="Library MS"
+    )
+    short_name = models.CharField(
+        max_length=30, help_text="Brand abbreviated name", default="LMS"
+    )
     slogan = models.TextField(
         help_text=_("Brand's slogan"),
         default="Empowering knowledge through seamless library management.",
@@ -28,7 +32,10 @@ class About(models.Model):
         default="456 Estate Avenue, Nairobi - Kenya",
     )
 
-    founded_in = models.DateField(help_text=_("Date when the business was founded"), default=timezone.now)
+    founded_in = models.DateField(
+        help_text=_("Date when the business was founded"),
+        default=timezone.now,
+    )
     email = models.EmailField(
         max_length=50,
         help_text="Website's admin email",
@@ -134,7 +141,11 @@ class ServiceFeedback(models.Model):
         related_name="feedback",
     )
     message = models.TextField(help_text=_("Response body"))
-    rate = models.CharField(max_length=15, choices=FeedbackRate.choices(), help_text=_("Feedback rating"))
+    rate = models.CharField(
+        max_length=15,
+        choices=FeedbackRate.choices(),
+        help_text=_("Feedback rating"),
+    )
     sender_role = models.CharField(
         max_length=40,
         help_text=_("Sender's role/category"),
@@ -180,10 +191,18 @@ class Message(models.Model):
         max_length=50,
         help_text=_("Sender's name"),
     )
-    email = models.EmailField(verbose_name=_("Email"), max_length=80, help_text=_("Sender's email address"))
-    body = models.TextField(verbose_name=_("Message"), help_text=_("Message body"))
+    email = models.EmailField(
+        verbose_name=_("Email"),
+        max_length=80,
+        help_text=_("Sender's email address"),
+    )
+    body = models.TextField(
+        verbose_name=_("Message"), help_text=_("Message body")
+    )
     is_read = models.BooleanField(
-        verbose_name=_("Is read"), help_text=_("Message read status"), default=False
+        verbose_name=_("Is read"),
+        help_text=_("Message read status"),
+        default=False,
     )
     created_at = models.DateTimeField(
         auto_now_add=True,
@@ -192,14 +211,25 @@ class Message(models.Model):
     )
 
     def __str__(self):
-        return f"from {self.sender} at {self.created_at.strftime('%d-%b-%Y %H:%M:%S')}"
+        return (
+            f"from {self.sender} at "
+            f"{self.created_at.strftime('%d-%b-%Y %H:%M:%S')}"
+        )
 
 
 class FAQ(models.Model):
-    question = models.CharField(verbose_name=_("Question"), max_length=100, help_text=_("The question"))
-    answer = models.TextField(verbose_name=_("Answer"), help_text=_("Answer to the question"))
+    question = models.CharField(
+        verbose_name=_("Question"),
+        max_length=100,
+        help_text=_("The question"),
+    )
+    answer = models.TextField(
+        verbose_name=_("Answer"), help_text=_("Answer to the question")
+    )
     is_shown = models.BooleanField(
-        verbose_name="Is shown", help_text=_("Show this FAQ in website"), default=True
+        verbose_name="Is shown",
+        help_text=_("Show this FAQ in website"),
+        default=True,
     )
     created_at = models.DateTimeField(
         auto_now_add=True,
@@ -230,11 +260,15 @@ class Gallery(models.Model):
         blank=True,
     )
     youtube_video_link = models.URLField(
-        max_length=100, help_text=_("YouTube video link"), null=True, blank=True
+        max_length=100,
+        help_text=_("YouTube video link"),
+        null=True,
+        blank=True,
     )
     date = models.DateField(help_text="Gallery date", default=timezone.now)
     show_in_index = models.BooleanField(
-        default=True, help_text=_("Display this gallery in website's gallery section.")
+        default=True,
+        help_text=_("Display this gallery in website's gallery section."),
     )
     updated_at = models.DateTimeField(
         auto_now=True,
@@ -268,7 +302,12 @@ class Document(models.Model):
         null=False,
         blank=False,
     )
-    content = RichTextField(verbose_name="Content", help_text=_("Document content"), null=False, blank=False)
+    content = RichTextField(
+        verbose_name="Content",
+        help_text=_("Document content"),
+        null=False,
+        blank=False,
+    )
 
     updated_at = models.DateTimeField(
         auto_now=True,
@@ -285,7 +324,11 @@ class Document(models.Model):
         return f"{self.name} ({self.id})"
 
     def model_dump(self):
-        return dict(name=self.name, content=self.content, updated_at=self.updated_at)
+        return dict(
+            name=self.name,
+            content=self.content,
+            updated_at=self.updated_at,
+        )
 
     class Meta:
         verbose_name = _("Document")

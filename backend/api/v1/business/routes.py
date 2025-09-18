@@ -1,23 +1,30 @@
-from fastapi import APIRouter, Query, HTTPException, status
+import asyncio
+from typing import Annotated
+
+from external.models import (
+    FAQ,
+    About,
+    Document,
+    Gallery,
+    Message,
+    ServiceFeedback,
+)
+from fastapi import APIRouter, HTTPException, Query, status
 from fastapi.encoders import jsonable_encoder
-from external.models import About, Message, FAQ, ServiceFeedback, Gallery, Document
 from management.models import AppUtility
 
-from api.v1.utils import send_email
-
-from api.v1.models import ProcessFeedback
 from api.v1.business.models import (
+    AppUtilityInfo,
     BusinessAbout,
-    NewVisitorMessage,
     BusinessGallery,
+    DocumentInfo,
     FAQDetails,
+    NewVisitorMessage,
     ShallowUserInfo,
     UserFeedback,
-    DocumentInfo,
-    AppUtilityInfo,
 )
-from typing import Annotated
-import asyncio
+from api.v1.models import ProcessFeedback
+from api.v1.utils import send_email
 
 router = APIRouter(prefix="/business", tags=["Business"])
 
@@ -27,7 +34,9 @@ async def get_business_details() -> BusinessAbout:
     about = await About.objects.all().alast()
     if about is not None:
         return jsonable_encoder(about)
-    raise HTTPException(status_code=404, detail="Business detail is not yet available.")
+    raise HTTPException(
+        status_code=404, detail="Business detail is not yet available."
+    )
 
 
 # GENERAL SITE DATA
@@ -36,9 +45,10 @@ async def get_business_details() -> BusinessAbout:
 
 
 @router.post("/visitor-message", name="New visitor message")
-async def new_visitor_message(message: NewVisitorMessage) -> ProcessFeedback:
+async def new_visitor_message(
+    message: NewVisitorMessage,
+) -> ProcessFeedback:
     new_message = await Message.objects.acreate(**message.model_dump())
-    await new_message.asave()
     await asyncio.to_thread(
         send_email,
         **dict(
@@ -55,14 +65,20 @@ async def new_visitor_message(message: NewVisitorMessage) -> ProcessFeedback:
 async def get_business_galleries() -> list[BusinessGallery]:
     return [
         jsonable_encoder(gallery)
-        async for gallery in Gallery.objects.filter(show_in_index=True).all().order_by("-created_at")[:12]
+        async for gallery in Gallery.objects.filter(show_in_index=True)
+        .all()
+        .order_by("-created_at")[:12]
     ]
 
 
 @router.get("/feedbacks", name="Customers' feedback")
 async def get_client_feedbacks() -> list[UserFeedback]:
     """Get customers' feedback"""
-    feedbacks = ServiceFeedback.objects.filter(show_in_index=True).order_by("-created_at").all()[:6]
+    feedbacks = (
+        ServiceFeedback.objects.filter(show_in_index=True)
+        .order_by("-created_at")
+        .all()[:6]
+    )
     feedback_list = []
     async for feedback in feedbacks:
         feedback_dict = jsonable_encoder(feedback)
@@ -76,7 +92,9 @@ async def get_faqs() -> list[FAQDetails]:
     """Get frequently asked question"""
     return [
         FAQDetails(**jsonable_encoder(faq))
-        async for faq in FAQ.objects.filter(is_shown=True).order_by("created_at").all()[:10]
+        async for faq in FAQ.objects.filter(is_shown=True)
+        .order_by("created_at")
+        .all()[:10]
     ]
 
 
@@ -96,10 +114,15 @@ async def get_site_document(
 
 @router.get("/app/utilities", name="App utilities")
 async def get_app_utilities(
-    name: Annotated[AppUtility.UtilityName, Query(description="Name filter")] = None,
+    name: Annotated[
+        AppUtility.UtilityName, Query(description="Name filter")
+    ] = None,
 ) -> list[AppUtilityInfo]:
     """Get app utilities such as currency etc"""
     search_filter = dict()
     if name is not None:
         search_filter["name"] = name.value
-    return [jsonable_encoder(utility) async for utility in AppUtility.objects.filter(**search_filter).all()]
+    return [
+        jsonable_encoder(utility)
+        async for utility in AppUtility.objects.filter(**search_filter).all()
+    ]

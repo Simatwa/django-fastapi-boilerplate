@@ -1,9 +1,8 @@
-from django.db import models
-from users.models import CustomUser
 from ckeditor.fields import RichTextField
+from django.db import models
 from django.utils.translation import gettext_lazy as _
 from project.utils import EnumWithChoices
-from ckeditor.fields import RichTextField
+from users.models import CustomUser
 
 # Create your models here.
 
@@ -147,7 +146,9 @@ class PersonalMessage(models.Model):
         blank=False,
     )
     is_read = models.BooleanField(
-        verbose_name=_("Is read"), default=False, help_text=_("Message read status")
+        verbose_name=_("Is read"),
+        default=False,
+        help_text=_("Message read status"),
     )
     created_at = models.DateTimeField(
         auto_now_add=True,
@@ -182,8 +183,14 @@ class Concern(models.Model):
         help_text=_("Person raising this concern"),
         related_name="concerns",
     )
-    about = models.CharField(max_length=200, verbose_name=_("About"), help_text=_("Main issue being raised."))
-    details = models.TextField(verbose_name=_("Details"), help_text=_("Concern in details"))
+    about = models.CharField(
+        max_length=200,
+        verbose_name=_("About"),
+        help_text=_("Main issue being raised."),
+    )
+    details = models.TextField(
+        verbose_name=_("Details"), help_text=_("Concern in details")
+    )
     response = RichTextField(
         verbose_name=_("Response"),
         help_text=_("Feedback from the concerned body"),

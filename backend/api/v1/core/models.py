@@ -1,8 +1,8 @@
-from pydantic import BaseModel, HttpUrl
-from typing import Optional
-from management.models import MessageCategory, Concern
-from external.models import ServiceFeedback
 from datetime import datetime
+
+from external.models import ServiceFeedback
+from management.models import Concern, MessageCategory
+from pydantic import BaseModel, HttpUrl
 
 
 class GroupInfo(BaseModel):
@@ -15,7 +15,10 @@ class GroupInfo(BaseModel):
         json_schema_extra = {
             "example": {
                 "name": "Tech Enthusiasts",
-                "description": "A group for people passionate about technology and innovation.",
+                "description": (
+                    "A group for people passionate about technology and "
+                    "innovation."
+                ),
                 "social_media_link": "https://www.linkedin.com/groups/123456/",
                 "created_at": "2025-04-18T22:21:43.609831Z",
             },
@@ -37,8 +40,8 @@ class PersonalMessageInfo(BaseModel):
                 "category": "General",
                 "subject": "Welcome Package Update",
                 "content": (
-                    "We've updated our welcome package with new amenities and services."
-                    " Please review the attached document."
+                    "We've updated our welcome package with new amenities and "
+                    "services. Please review the attached document."
                 ),
                 "created_at": "2025-04-18T22:21:43.609831Z",
                 "is_read": False,
@@ -82,7 +85,7 @@ class ShallowConcernDetails(BaseModel):
 
 class ConcernDetails(ShallowConcernDetails):
     details: str
-    response: Optional[str] = None
+    response: str | None = None
     updated_at: datetime
 
     class Config:
@@ -93,15 +96,18 @@ class ConcernDetails(ShallowConcernDetails):
                 "status": "Resolved",
                 "created_at": "2025-04-18T22:21:43.609831Z",
                 "details": "The service was not up to the expected standards.",
-                "response": "We apologize for the inconvenience and have taken corrective measures.",
+                "response": (
+                    "We apologize for the inconvenience and have taken "
+                    "corrective measures."
+                ),
                 "updated_at": "2025-04-20T10:15:30.123456Z",
             },
         }
 
 
 class UpdateConcern(BaseModel):
-    about: Optional[str] = None
-    details: Optional[str] = None
+    about: str | None = None
+    details: str | None = None
 
     class Config:
         json_schema_extra = {
@@ -119,7 +125,9 @@ class NewUserFeedback(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
-                "message": "The service was excellent and exceeded expectations.",
+                "message": (
+                    "The service was excellent and exceeded expectations."
+                ),
                 "rate": "Excellent",
             },
         }
@@ -132,7 +140,9 @@ class UserFeedbackDetails(NewUserFeedback):
     class Config:
         json_schema_extra = {
             "example": {
-                "message": "The service was excellent and exceeded expectations.",
+                "message": (
+                    "The service was excellent and exceeded expectations."
+                ),
                 "rate": 5,
                 "created_at": "2025-04-18T22:21:43.609831Z",
                 "updated_at": "2025-04-19T08:30:00.123456Z",

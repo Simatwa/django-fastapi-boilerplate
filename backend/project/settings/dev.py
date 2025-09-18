@@ -1,3 +1,3 @@
 """Configs for development environment"""
 
-from .base import *
+from .base import *  # noqa: F403

@@ -1,6 +1,7 @@
+from os import path
+
 from django import template
 from django.conf import settings
-from os import path
 
 register = template.Library()
 

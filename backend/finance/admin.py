@@ -1,10 +1,11 @@
 from django.contrib import admin
-
-# Register your models here.
-from finance.models import Account, UserAccount, Transaction, ExtraFee
-from finance.forms import TransactionForm
 from django.utils.translation import gettext_lazy as _
 from project.utils.admin import DevelopmentImportExportModelAdmin
+
+from finance.forms import TransactionForm
+
+# Register your models here.
+from finance.models import Account, ExtraFee, Transaction, UserAccount
 
 
 @admin.register(Account)

@@ -1,6 +1,7 @@
 from django import forms
-from users.models import CustomUser
 from django.contrib.auth.hashers import make_password
+
+from users.models import CustomUser
 
 
 class CustomUserCreationForm(forms.ModelForm):

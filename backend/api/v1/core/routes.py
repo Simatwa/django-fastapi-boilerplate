@@ -1,42 +1,39 @@
 """Core routes"""
 
-from fastapi import (
-    APIRouter,
-    status,
-    HTTPException,
-    Depends,
-    Query,
-    Path,
-)
-from api.v1.utils import get_value
-from api.v1.account.utils import get_user
-
-from users.models import CustomUser
-from management.models import (
-    GroupMessage,
-    PersonalMessage,
-    Concern,
-    MessageCategory,
-)
-from external.models import ServiceFeedback
-
-from api.v1.models import ProcessFeedback
-from api.v1.core.models import (
-    PersonalMessageInfo,
-    GroupMessageInfo,
-    NewConcern,
-    ShallowConcernDetails,
-    ConcernDetails,
-    UpdateConcern,
-    NewUserFeedback,
-    UserFeedbackDetails,
-)
+from typing import Annotated
 
 from django.db.utils import IntegrityError
-
-from typing import Annotated, List
+from external.models import ServiceFeedback
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    Path,
+    Query,
+    status,
+)
 from fastapi.encoders import jsonable_encoder
-import asyncio
+from management.models import (
+    Concern,
+    GroupMessage,
+    MessageCategory,
+    PersonalMessage,
+)
+from users.models import CustomUser
+
+from api.v1.account.utils import get_user
+from api.v1.core.models import (
+    ConcernDetails,
+    GroupMessageInfo,
+    NewConcern,
+    NewUserFeedback,
+    PersonalMessageInfo,
+    ShallowConcernDetails,
+    UpdateConcern,
+    UserFeedbackDetails,
+)
+from api.v1.models import ProcessFeedback
+from api.v1.utils import get_value
 
 router = APIRouter(prefix="/core", tags=["Core"])
 
@@ -47,8 +44,10 @@ router = APIRouter(prefix="/core", tags=["Core"])
 async def get_personal_messages(
     user: Annotated[CustomUser, Depends(get_user)],
     is_read: Annotated[bool, Query(description="Is read filter")] = None,
-    category: Annotated[MessageCategory, Query(description="Messages category")] = None,
-) -> List[PersonalMessageInfo]:
+    category: Annotated[
+        MessageCategory, Query(description="Messages category")
+    ] = None,
+) -> list[PersonalMessageInfo]:
     """Messages that targets one user"""
     search_filter = dict(user=user)
     if is_read is not None:
@@ -63,14 +62,19 @@ async def get_personal_messages(
     ]
 
 
-@router.patch("/personal/message/mark-read/{id}", name="Mark personal message as read")
+@router.patch(
+    "/personal/message/mark-read/{id}",
+    name="Mark personal message as read",
+)
 async def mark_personal_message_read(
     id: Annotated[int, Path(description="Personal message ID")],
     user: Annotated[CustomUser, Depends(get_user)],
 ) -> ProcessFeedback:
     """Mark a personal message as read"""
     try:
-        await PersonalMessage.objects.filter(id=id, user=user).aupdate(is_read=True)
+        await PersonalMessage.objects.filter(id=id, user=user).aupdate(
+            is_read=True
+        )
         return ProcessFeedback(detail="Message marked as read successfully")
     except PersonalMessage.DoesNotExist:
         raise HTTPException(
@@ -83,11 +87,17 @@ async def mark_personal_message_read(
 async def get_group_messages(
     user: Annotated[CustomUser, Depends(get_user)],
     is_read: Annotated[bool, Query(description="Is read filter")] = None,
-    category: Annotated[MessageCategory, Query(description="Messages category")] = None,
-) -> List[GroupMessageInfo]:
+    category: Annotated[
+        MessageCategory, Query(description="Messages category")
+    ] = None,
+) -> list[GroupMessageInfo]:
     """Messages from unit group that user is a member"""
     message_list = []
-    search_filter = dict(groups__in=[member_group async for member_group in user.member_groups.all()])
+    search_filter = dict(
+        groups__in=[
+            member_group async for member_group in user.member_groups.all()
+        ]
+    )
     if is_read is not None:
         if is_read:
             search_filter["read_by"] = user
@@ -108,16 +118,22 @@ async def get_group_messages(
     return message_list
 
 
-@router.patch("/group/message/mark-read/{id}", name="Mark group message as read")
+@router.patch(
+    "/group/message/mark-read/{id}", name="Mark group message as read"
+)
 async def mark_group_message_read(
     id: Annotated[int, Path(description="Group message ID")],
     user: Annotated[CustomUser, Depends(get_user)],
 ) -> ProcessFeedback:
     """Mark a particular group message as read"""
     try:
-        target_message = await GroupMessage.objects.prefetch_related("read_by").aget(
+        target_message = await GroupMessage.objects.prefetch_related(
+            "read_by"
+        ).aget(
             id=id,
-            groups__in=[member_group async for member_group in user.member_groups.all()],
+            groups__in=[
+                member_group async for member_group in user.member_groups.all()
+            ],
         )
         await target_message.read_by.aadd(user)
         return ProcessFeedback(detail="Message marked as read successfully.")
@@ -131,15 +147,19 @@ async def mark_group_message_read(
 @router.get("/concerns", name="Get concerns")
 async def get_concerns(
     user: Annotated[CustomUser, Depends(get_user)],
-    status: Annotated[Concern.ConcernStatus, Query(description="Concern status")] = None,
-) -> List[ShallowConcernDetails]:
+    status: Annotated[
+        Concern.ConcernStatus, Query(description="Concern status")
+    ] = None,
+) -> list[ShallowConcernDetails]:
     """Get concerns ever sent"""
     search_filter = dict(user=user)
     if status is not None:
         search_filter["status"] = status.value
     return [
         jsonable_encoder(concern)
-        async for concern in Concern.objects.filter(**search_filter).order_by("-created_at").all()[:30]
+        async for concern in Concern.objects.filter(**search_filter)
+        .order_by("-created_at")
+        .all()[:30]
     ]
 
 
@@ -151,7 +171,6 @@ async def add_new_concern(
     new_concern_dict = concern.model_dump()
     new_concern_dict["user"] = user
     new_concern = await Concern.objects.acreate(**new_concern_dict)
-    await new_concern.asave()
     # new_concern.refresh_from_db()
     return new_concern.model_dump()
 
@@ -173,7 +192,9 @@ async def update_existing_concern(
             ],
         )
         target_concern.about = get_value(concern.about, target_concern.about)
-        target_concern.details = get_value(concern.details, target_concern.details)
+        target_concern.details = get_value(
+            concern.details, target_concern.details
+        )
         await target_concern.asave()
         return target_concern.model_dump()
     except Concern.DoesNotExist:
@@ -200,7 +221,7 @@ async def get_concern_details(
 
 
 @router.delete("/concern/{id}", name="Delete concern")
-async def get_concern_details(
+async def delete_concern_details(
     id: Annotated[int, Path(description="Concern ID")],
     user: Annotated[CustomUser, Depends(get_user)],
 ) -> ProcessFeedback:
@@ -218,18 +239,21 @@ async def get_concern_details(
 
 @router.post("/feedback", name="New feedback")
 async def add_new_feedback(
-    user: Annotated[CustomUser, Depends(get_user)], feedback: NewUserFeedback
+    user: Annotated[CustomUser, Depends(get_user)],
+    feedback: NewUserFeedback,
 ) -> UserFeedbackDetails:
     try:
         new_feedback = await ServiceFeedback.objects.acreate(
             sender=user, message=feedback.message, rate=feedback.rate.value
         )
-        await new_feedback.asave()
         return new_feedback.model_dump()
     except IntegrityError:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="You already have an existing feedback. Consider updating it instead.",
+            detail=(
+                "You already have an existing feedback. Consider updating it "
+                "instead."
+            ),
         )
 
 
@@ -241,14 +265,18 @@ async def update_feedback(
     """Update user service-feedback"""
     try:
         target_feedback = await ServiceFeedback.objects.aget(sender=user)
-        target_feedback.message = get_value(feedback.message, target_feedback.message)
-        target_feedback.rate = get_value(feedback.rate.value, target_feedback.rate)
+        target_feedback.message = get_value(
+            feedback.message, target_feedback.message
+        )
+        target_feedback.rate = get_value(
+            feedback.rate.value, target_feedback.rate
+        )
         await target_feedback.asave()
         return target_feedback.model_dump()
     except ServiceFeedback.DoesNotExist:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"You have not send a feedback yet.",
+            detail="You have not send a feedback yet.",
         )
 
 
@@ -263,7 +291,7 @@ async def get_feedback_details(
     except ServiceFeedback.DoesNotExist:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"You have not send a feedback yet.",
+            detail="You have not send a feedback yet.",
         )
 
 
@@ -279,5 +307,5 @@ async def delete_feedback(
     except ServiceFeedback.DoesNotExist:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"You have not send a feedback yet.",
+            detail="You have not send a feedback yet.",
         )

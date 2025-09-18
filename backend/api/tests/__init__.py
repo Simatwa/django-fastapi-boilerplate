@@ -1,5 +1,6 @@
 from fastapi.testclient import TestClient
 from users.models import CustomUser
+
 from api import app
 
 base_url = "http://testserver/api"

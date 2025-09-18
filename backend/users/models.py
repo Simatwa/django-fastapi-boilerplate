@@ -1,13 +1,14 @@
-from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import FileExtensionValidator, RegexValidator
+from django.db import models
+from django.utils import timezone
 from django.utils.translation import gettext as _
-from django.core.validators import FileExtensionValidator
-from django.core.validators import RegexValidator
-from django.utils import timezone
-from project.utils import get_expiry_datetime
 from finance.models import UserAccount
-from project.utils import EnumWithChoices, generate_document_filepath
-from django.utils import timezone
+from project.utils import (
+    EnumWithChoices,
+    generate_document_filepath,
+    get_expiry_datetime,
+)
 
 # Create your models here.
 
@@ -46,7 +47,8 @@ class CustomUser(AbstractUser):
             RegexValidator(
                 regex=r"^\+?1?\d{9,15}$",
                 message=_(
-                    "Phone number must be entered in the format: '+254...' or '07...'. Up to 15 digits allowed."
+                    "Phone number must be entered in the format: '+254...'"
+                    " or '07...'. Up to 15 digits allowed."
                 ),
             )
         ],
@@ -59,7 +61,9 @@ class CustomUser(AbstractUser):
         _("Profile Picture"),
         default="default/user.png",
         upload_to=generate_document_filepath,
-        validators=[FileExtensionValidator(allowed_extensions=["jpg", "jpeg", "png"])],
+        validators=[
+            FileExtensionValidator(allowed_extensions=["jpg", "jpeg", "png"])
+        ],
         blank=True,
         null=True,
     )
@@ -89,7 +93,8 @@ class CustomUser(AbstractUser):
     def save(self, *args, **kwargs):
         if not self.id:  # new entry
             if len(self.password) < 50:
-                # TODO: Implement your own logic for differenciating hashed and unhashed passwords
+                # TODO: Implement your own logic for differenciating
+                # hashed and unhashed passwords
                 self.set_password(self.password)
             new_account = UserAccount.objects.create()
             new_account.save()
@@ -121,10 +126,16 @@ class CustomUser(AbstractUser):
 
 
 class AuthToken(models.Model):
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name="auth_token")
-    token = models.CharField(help_text=_("auth token value"), max_length=80, null=False)
+    user = models.OneToOneField(
+        CustomUser, on_delete=models.CASCADE, related_name="auth_token"
+    )
+    token = models.CharField(
+        help_text=_("auth token value"), max_length=80, null=False
+    )
     expiry_datetime = models.DateTimeField(
-        help_text=_("Expiry datetime"), null=False, default=get_expiry_datetime
+        help_text=_("Expiry datetime"),
+        null=False,
+        default=get_expiry_datetime,
     )
 
     def is_expired(self):

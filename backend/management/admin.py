@@ -1,18 +1,48 @@
 from django.contrib import admin
-from management.models import (
-    MemberGroup,
-    GroupMessage,
-    PersonalMessage,
-    Concern,
-    AppUtility,
-)
-from project.utils.admin import DevelopmentImportExportModelAdmin
-from django.utils.translation import gettext_lazy as _
-from management.forms import AppUtilityForm
 from django.contrib.admin.models import LogEntry
+from django.utils.translation import gettext_lazy as _
+from project.utils.admin import DevelopmentImportExportModelAdmin
 
+from management.forms import AppUtilityForm
+from management.models import (
+    AppUtility,
+    Concern,
+    GroupMessage,
+    MemberGroup,
+    PersonalMessage,
+)
 
 # Register your models here.
+
+
+@admin.register(LogEntry)
+class CustomLogEntryAdmin(admin.ModelAdmin):
+    list_display = (
+        "action_time",
+        "user",
+        "content_type",
+        "object_id",
+        "action_flag",
+    )
+    search_fields = [
+        "user__username",
+        "content_type__model",
+        "change_message",
+        "object_repr",
+    ]
+    list_filter = (
+        "user",
+        "action_flag",
+        "content_type",
+        "action_time",
+    )
+    date_hierarchy = "action_time"
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=...):
+        return False
 
 
 @admin.register(MemberGroup)
@@ -106,7 +136,10 @@ class PersonalMessageAdmin(DevelopmentImportExportModelAdmin):
         ),
         (
             _("Read Status & Timestamps"),
-            {"fields": ("is_read", "created_at", "updated_at"), "classes": ["tab"]},
+            {
+                "fields": ("is_read", "created_at", "updated_at"),
+                "classes": ["tab"],
+            },
         ),
     )
     readonly_fields = ("created_at", "updated_at", "is_read")
@@ -117,7 +150,13 @@ class PersonalMessageAdmin(DevelopmentImportExportModelAdmin):
 class ConcernAdmin(DevelopmentImportExportModelAdmin):
     list_display = ("user", "about", "status", "updated_at", "created_at")
     list_editable_fields = ("status",)
-    search_fields = ("user__username", "about", "details", "response", "status")
+    search_fields = (
+        "user__username",
+        "about",
+        "details",
+        "response",
+        "status",
+    )
     list_filter = ("status", "updated_at", "created_at")
     fieldsets = (
         (

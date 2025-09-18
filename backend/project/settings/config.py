@@ -1,6 +1,7 @@
-from pydantic import BaseModel, HttpUrl, field_validator
-from typing import Literal, Optional, Annotated  #
+from typing import Annotated, Literal
+
 from envist import Envist
+from pydantic import BaseModel, HttpUrl, field_validator
 
 
 class EnvSettings(BaseModel):
@@ -12,46 +13,52 @@ class EnvSettings(BaseModel):
         "django.db.backends.sqlite3",
         "django.db.backends.oracle",
     ] = "django.db.backends.sqlite3"
-    DATABASE_NAME: Optional[str] = "db.sqlite3"
+    DATABASE_NAME: str | None = "db.sqlite3"
     DATABASE_USER: str = "developer"
     DATABASE_PASSWORD: str = "development"
-    DATABASE_HOST: Optional[str] = "localhost"
-    DATABASE_PORT: Optional[int] = 3306
+    DATABASE_HOST: str | None = "localhost"
+    DATABASE_PORT: int | None = 3306
 
     # APPLICATION
-    SECRET_KEY: Optional[str] = "django-insecure-%sx#6ax4gpycp&ixq9ejj*wwtdk&#g)5@nyhp)4)_9h)h!$@kw"
-    DEBUG: Optional[bool] = True
-    ALLOWED_HOSTS: Optional[list[str]] = ["*"]
-    LANGUAGE_CODE: Optional[str] = "en-us"
-    TIME_ZONE: Optional[str] = "Africa/Nairobi"
-    SITE_NAME: Optional[str] = "MySite"
+    SECRET_KEY: str | None = (
+        "django-insecure-%sx#6ax4gpycp&ixq9ejj*wwtdk&#g)5@nyhp)4)_9h)h!$@kw"
+    )
+    DEBUG: bool | None = True
+    ALLOWED_HOSTS: list[str] | None = ["*"]
+    LANGUAGE_CODE: str | None = "en-us"
+    TIME_ZONE: str | None = "Africa/Nairobi"
+    SITE_NAME: str | None = "MySite"
     SITE_ADDRESS: Annotated[str, HttpUrl] = "http://localhost:8000"
-    FRONTEND_DIR: Optional[str] = None
+    FRONTEND_DIR: str | None = None
 
     # E-MAIL
-    EMAIL_BACKEND: Optional[str] = "django.core.mail.backends.smtp.EmailBackend"
-    EMAIL_HOST: Optional[str] = "smtp.gmail.com"
-    EMAIL_PORT: Optional[int] = 587
-    EMAIL_USE_TLS: Optional[bool] = True
+    EMAIL_BACKEND: str | None = "django.core.mail.backends.smtp.EmailBackend"
+    EMAIL_HOST: str | None = "smtp.gmail.com"
+    EMAIL_PORT: int | None = 587
+    EMAIL_USE_TLS: bool | None = True
     EMAIL_HOST_USER: str
-    EMAIL_HOST_PASSWORD: str = None  # Your email password or app-specific password
+    EMAIL_HOST_PASSWORD: str = (
+        None  # Your email password or app-specific password
+    )
     DEFAULT_FROM_EMAIL: str = None  # Optional: default sender email
 
     # CORS
     CORS_ALLOWED_ORIGINS: list[str] = []
     CORS_ALLOWED_ORIGIN_REGEXES: list[str] = []
-    CORS_ALLOW_ALL_ORIGINS: Optional[bool] = False
+    CORS_ALLOW_ALL_ORIGINS: bool | None = False
 
     # UTILS
-    CURRENCY: Optional[str] = "Ksh"
+    CURRENCY: str | None = "Ksh"
 
-    DEMO: Optional[bool] = False
+    DEMO: bool | None = False
 
     # PROJECT
-    REPOSITORY_LINK: Optional[str] = "https://github.com/Simatwa/django-fastapi-boilerplate"
-    LICENSE: Optional[str] = "Unspecified"
+    REPOSITORY_LINK: str | None = (
+        "https://github.com/Simatwa/django-fastapi-boilerplate"
+    )
+    LICENSE: str | None = "Unspecified"
 
-    API_PREFIX: Optional[str] = "/api"
+    API_PREFIX: str | None = "/api"
 
     @field_validator("API_PREFIX")
     def validate_api_prefix(value: str):

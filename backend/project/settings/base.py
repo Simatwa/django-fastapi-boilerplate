@@ -147,7 +147,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-FRONTEND_DIR = BASE_DIR / env_setting.FRONTEND_DIR if env_setting.FRONTEND_DIR is not None else None
+FRONTEND_DIR = (
+    BASE_DIR / env_setting.FRONTEND_DIR
+    if env_setting.FRONTEND_DIR is not None
+    else None
+)
 
 LANGUAGES = (
     ("de", _("German")),
@@ -200,7 +204,11 @@ JAZZMIN_SETTINGS = {
     "copyright": SITE_NAME,
     "user_avatar": "profile",
     "topmenu_links": [
-        {"name": "Home", "url": "admin:index", "permissions": ["auth.view_user"]},
+        {
+            "name": "Home",
+            "url": "admin:index",
+            "permissions": ["auth.view_user"],
+        },
         {
             "name": "Index",
             "url": "/",

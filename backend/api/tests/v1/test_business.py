@@ -1,11 +1,13 @@
 from unittest import TestCase
-from api.tests import client
-from api.tests.utils import get_model_example
-from api import v1_router
-from api.v1.business.models import NewVisitorMessage, BusinessAbout
+
+from django.db import IntegrityError
 from external.models import About, Document
 from management.models import AppUtility
-from django.db import IntegrityError
+
+from api import v1_router
+from api.tests import client
+from api.tests.utils import get_model_example
+from api.v1.business.models import BusinessAbout, NewVisitorMessage
 
 
 class TestBusiness(TestCase):
@@ -13,7 +15,6 @@ class TestBusiness(TestCase):
 
     def test_about(self):
         about = About.objects.create(**get_model_example(BusinessAbout))
-        about.save()
         resp = client.get(v1_router.url_path_for("Business information"))
         self.assertTrue(resp.is_success)
         about.delete()
@@ -46,24 +47,28 @@ class TestBusiness(TestCase):
             content="",
         )
         delete_obj = True
-        try:
-            document.save()
-        except IntegrityError:
-            delete_obj = False
-        resp = client.get(v1_router.url_path_for("Site document"), params=dict(name=document_name))
+        resp = client.get(
+            v1_router.url_path_for("Site document"),
+            params=dict(name=document_name),
+        )
         self.assertTrue(resp.is_success)
         if delete_obj:
             document.delete()
 
     def test_utility(self):
         utility_name = AppUtility.UtilityName.CURRENCY.value
-        utility = AppUtility.objects.create(name=utility_name, description="", value="Ksh")
+        utility = AppUtility.objects.create(
+            name=utility_name, description="", value="Ksh"
+        )
         delete_obj = True
         try:
             utility.save()
         except IntegrityError:
             delete_obj = False
-        resp = client.get(v1_router.url_path_for("App utilities"), params=dict(name=utility_name))
+        resp = client.get(
+            v1_router.url_path_for("App utilities"),
+            params=dict(name=utility_name),
+        )
         self.assertTrue(resp.is_success)
         if delete_obj:
             utility.delete()

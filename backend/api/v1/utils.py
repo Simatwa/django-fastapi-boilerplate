@@ -1,10 +1,11 @@
 """Utilities fuctions for v1"""
 
 import os
-from project.utils import send_email as django_send_email
-from django.template.loader import render_to_string
+
 from django.conf import settings
+from django.template.loader import render_to_string
 from django.utils import timezone
+from project.utils import send_email as django_send_email
 
 
 def get_value(optional, default):
@@ -14,7 +15,9 @@ def get_value(optional, default):
 def get_template_path(template_name: str) -> str:
     return os.path.join(
         "api/v1/",
-        template_name if template_name.endswith(".html") else template_name + ".html",
+        template_name
+        if template_name.endswith(".html")
+        else template_name + ".html",
     )
 
 
@@ -30,7 +33,12 @@ def send_email(subject: str, recipient: str, template_name: str, context: dict):
         get_template_path(template_name),
         context=context,
     )
-    return django_send_email(subject=subject, message="", recipient=recipient, html_message=email_body)
+    return django_send_email(
+        subject=subject,
+        message="",
+        recipient=recipient,
+        html_message=email_body,
+    )
 
 
 def get_document_path(path: str | None):

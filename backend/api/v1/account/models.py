@@ -1,14 +1,14 @@
-from pydantic import BaseModel, field_validator
-from typing import Optional
-from users.models import CustomUser
-from finance.models import Transaction
-from datetime import datetime
 import re
+from datetime import datetime
+
+from finance.models import Transaction
+from pydantic import BaseModel, field_validator
+from users.models import CustomUser
 
 
 class TokenAuth(BaseModel):
     access_token: str
-    token_type: Optional[str] = "bearer"
+    token_type: str | None = "bearer"
 
     class Config:
         json_schema_extra = {
@@ -31,7 +31,8 @@ class ResetPassword(BaseModel):
             new_password,
         ):
             raise ValueError(
-                "Password must be at least 8 characters long, include an uppercase letter, "
+                "Password must be at least 8 characters long, include an "
+                "uppercase letter, "
                 "a lowercase letter, a number, and a special character."
             )
         return new_password
@@ -53,11 +54,11 @@ class ResetPassword(BaseModel):
 
 
 class EditablePersonalData(BaseModel):
-    first_name: Optional[str] = None
-    last_name: Optional[str] = None
-    address: Optional[str] = None
-    phone_number: Optional[str] = None
-    email: Optional[str] = None
+    first_name: str | None = None
+    last_name: str | None = None
+    address: str | None = None
+    phone_number: str | None = None
+    email: str | None = None
 
     class Config:
         json_schema_extra = {
@@ -75,7 +76,7 @@ class UserProfile(EditablePersonalData):
     username: str
     gender: CustomUser.UserGender
     account_balance: float
-    profile: Optional[str] = None
+    profile: str | None = None
     is_staff: bool
     date_joined: datetime
 
@@ -102,7 +103,7 @@ class TransactionInfo(BaseModel):
     amount: float
     means: Transaction.TransactionMeans
     reference: str
-    notes: Optional[str] = None
+    notes: str | None = None
     created_at: datetime
 
 
@@ -110,7 +111,7 @@ class PaymentAccountDetails(BaseModel):
     name: str
     paybill_number: str
     account_number: str
-    details: Optional[str]
+    details: str | None
 
     class Config:
         json_schema_extra = {
@@ -128,4 +129,6 @@ class SendMPESAPopupTo(BaseModel):
     amount: int
 
     class Config:
-        json_schema_extra = {"example": {"phone_number": "+1234567890", "amount": 100.0}}
+        json_schema_extra = {
+            "example": {"phone_number": "+1234567890", "amount": 100.0}
+        }

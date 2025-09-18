@@ -5,29 +5,33 @@ API module. Uses FastAPI.
 import os
 import time
 from pathlib import Path
-
-from fastapi import FastAPI, Request, Response
-from fastapi.staticfiles import StaticFiles
-from fastapi.middleware.cors import CORSMiddleware
 from typing import Annotated
 
+from fastapi import FastAPI, Request, Response
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+
 # Django
-# Setup django first before importing any module that will require any of its resource
+# Setup django first before importing any module that will require
+# any of its resource
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "project.settings")
+
 import django
+from django.core.handlers.asgi import ASGIHandler
 
 django.setup()
 
-from api.v1 import router as v1_router
-from project.settings import (
-    STATIC_URL,
+from project.settings import (  # noqa: E402
+    FRONTEND_DIR,
+    MEDIA_ROOT,
     MEDIA_URL,
     STATIC_ROOT,
-    MEDIA_ROOT,
-    FRONTEND_DIR,
+    STATIC_URL,
     env_setting,
 )
+
+from api.v1 import router as v1_router  # noqa: E402
 
 api_module_path = Path(__file__).parent
 
@@ -66,7 +70,6 @@ app.add_middleware(
 app.mount(STATIC_URL[:-1], StaticFiles(directory=STATIC_ROOT), name="static")
 app.mount(MEDIA_URL[:-1], StaticFiles(directory=MEDIA_ROOT), name="media")
 
-from django.core.handlers.asgi import ASGIHandler
 
 # Include API router
 app.include_router(v1_router, prefix=env_setting.API_PREFIX)
@@ -77,10 +80,20 @@ app.mount("/d", app=ASGIHandler(), name="django")
 if FRONTEND_DIR:
     index_file_path = FRONTEND_DIR / "index.html"
 
-    @app.get("/{path:path}", name="React requests hit here", include_in_schema=False)
+    @app.get(
+        "/{path:path}",
+        name="React requests hit here",
+        include_in_schema=False,
+    )
     def serve_react_app(
         path: Annotated[str, Path(description="Resource path")],
     ):
-        return Response(content=index_file_path.read_text(), media_type="text/html")
+        return Response(
+            content=index_file_path.read_text(), media_type="text/html"
+        )
 
-    app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")
+    app.mount(
+        "/",
+        StaticFiles(directory=FRONTEND_DIR, html=True),
+        name="frontend",
+    )

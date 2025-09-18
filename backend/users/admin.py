@@ -1,13 +1,18 @@
-from django.contrib import admin
-from users.models import CustomUser
-
 # Register your models here.
-
 from django.conf import settings
+
+# from unfold.admin import ModelAdmin
 from django.contrib import admin, messages
 from django.contrib.admin.options import IS_POPUP_VAR
 from django.contrib.admin.utils import unquote
 from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.admin import GroupAdmin as BaseGroupAdmin
+from django.contrib.auth.forms import (
+    AdminPasswordChangeForm,
+    AdminUserCreationForm,
+    UserChangeForm,
+)
+from django.contrib.auth.models import Group
 from django.core.exceptions import PermissionDenied
 from django.db import router, transaction
 from django.http import Http404, HttpResponseRedirect
@@ -15,29 +20,19 @@ from django.template.response import TemplateResponse
 from django.urls import path, reverse
 from django.utils.decorators import method_decorator
 from django.utils.html import escape
-from django.utils.translation import gettext
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext, gettext_lazy as _
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.debug import sensitive_post_parameters
 
+# from unfold.forms import AdminPasswordChangeForm, UserChangeForm,
+# UserCreationForm
+# from unfold.admin import ModelAdmin
+from project.utils.admin import DevelopmentImportExportModelAdmin
+
+from users.models import CustomUser
+
 csrf_protect_m = method_decorator(csrf_protect)
 sensitive_post_parameters_m = method_decorator(sensitive_post_parameters())
-
-# from unfold.admin import ModelAdmin
-from django.contrib import admin
-from django.contrib.auth.forms import (
-    AdminPasswordChangeForm,
-    AdminUserCreationForm,
-    UserChangeForm,
-)
-
-from django.contrib.auth.admin import GroupAdmin as BaseGroupAdmin
-from django.contrib.auth.models import Group
-
-# from unfold.forms import AdminPasswordChangeForm, UserChangeForm, UserCreationForm
-# from unfold.admin import ModelAdmin
-
-from project.utils.admin import DevelopmentImportExportModelAdmin
 
 
 @admin.register(CustomUser)
@@ -155,7 +150,9 @@ class CustomUserAdmin(DevelopmentImportExportModelAdmin):
     # def lookup_allowed(self, lookup, value, request):
     def lookup_allowed(self, lookup, value, request=None):
         # Don't allow lookups involving passwords.
-        return not lookup.startswith("password") and super().lookup_allowed(lookup, value, request)
+        return not lookup.startswith("password") and super().lookup_allowed(
+            lookup, value, request
+        )
 
     @sensitive_post_parameters_m
     @csrf_protect_m
@@ -213,15 +210,20 @@ class CustomUserAdmin(DevelopmentImportExportModelAdmin):
                 # the admin user has two submit buttons available (for example
                 # when Javascript is disabled).
                 valid_submission = (
-                    form.cleaned_data["set_usable_password"] or "unset-password" in request.POST
+                    form.cleaned_data["set_usable_password"]
+                    or "unset-password" in request.POST
                 )
                 if not valid_submission:
-                    msg = gettext("Conflicting form data submitted. Please try again.")
+                    msg = gettext(
+                        "Conflicting form data submitted. Please try again."
+                    )
                     messages.error(request, msg)
                     return HttpResponseRedirect(request.get_full_path())
 
                 user = form.save()
-                change_message = self.construct_change_message(request, form, None)
+                change_message = self.construct_change_message(
+                    request, form, None
+                )
                 self.log_change(request, user, change_message)
                 if user.has_usable_password():
                     msg = gettext("Password changed successfully.")
@@ -255,7 +257,9 @@ class CustomUserAdmin(DevelopmentImportExportModelAdmin):
             "adminForm": admin_form,
             "form_url": form_url,
             "form": form,
-            "is_popup": (IS_POPUP_VAR in request.POST or IS_POPUP_VAR in request.GET),
+            "is_popup": (
+                IS_POPUP_VAR in request.POST or IS_POPUP_VAR in request.GET
+            ),
             "is_popup_var": IS_POPUP_VAR,
             "add": True,
             "change": False,
@@ -273,7 +277,8 @@ class CustomUserAdmin(DevelopmentImportExportModelAdmin):
 
         return TemplateResponse(
             request,
-            self.change_user_password_template or "admin/auth/user/change_password.html",
+            self.change_user_password_template
+            or "admin/auth/user/change_password.html",
             context,
         )
 
@@ -288,7 +293,10 @@ class CustomUserAdmin(DevelopmentImportExportModelAdmin):
         # button except in two scenarios:
         # * The user has pressed the 'Save and add another' button
         # * We are adding a user in a popup
-        if "_addanother" not in request.POST and IS_POPUP_VAR not in request.POST:
+        if (
+            "_addanother" not in request.POST
+            and IS_POPUP_VAR not in request.POST
+        ):
             request.POST = request.POST.copy()
             request.POST["_continue"] = 1
         return super().response_add(request, obj, post_url_continue)

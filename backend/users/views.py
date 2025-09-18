@@ -1,15 +1,25 @@
-from django.shortcuts import render
-from django.urls import reverse_lazy
-from django.views.generic import CreateView, UpdateView, DeleteView, TemplateView, View
-from users.models import CustomUser
-from users.forms import CustomUserCreationForm, CustomUserUpdateForm
+import json
+
+from django.contrib.auth import login, logout
+from django.contrib.auth.decorators import (
+    login_not_required,
+    login_required,
+)
 from django.http import JsonResponse
 from django.http.request import HttpRequest
-from users.models import CustomUser
-from django.contrib.auth import login, logout
-from django.contrib.auth.decorators import login_required, login_not_required
+from django.shortcuts import render
+from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
-import json
+from django.views.generic import (
+    CreateView,
+    DeleteView,
+    TemplateView,
+    UpdateView,
+    View,
+)
+
+from users.forms import CustomUserCreationForm, CustomUserUpdateForm
+from users.models import CustomUser
 
 # Create your views here.
 
@@ -24,7 +34,9 @@ class Login(View):
     def get(self, request: HttpRequest):
         if request.GET.get("next"):
             # Reject redirects to prevent confusing API
-            return JsonResponse({"detail": "You have to login first."}, status=403)
+            return JsonResponse(
+                {"detail": "You have to login first."}, status=403
+            )
         token = request.GET.get("token")
         return self.login_user(request, token)
 
@@ -37,10 +49,14 @@ class Login(View):
             try:
                 user = CustomUser.objects.get(token=token)
                 login(request, user)
-                return JsonResponse({"detail": "User authenticated successfully"})
+                return JsonResponse(
+                    {"detail": "User authenticated successfully"}
+                )
             except CustomUser.DoesNotExist:
                 return JsonResponse({"detail": "Invalid token"}, status=400)
-        return JsonResponse({"detail": "Token not provided for login"}, status=400)
+        return JsonResponse(
+            {"detail": "Token not provided for login"}, status=400
+        )
 
 
 class Logout(View):
@@ -58,11 +74,19 @@ class CreateUser(CreateView):
     success_url = reverse_lazy("users:success")
 
     def form_valid(self, form):
-        response = super().form_valid(form)
-        return JsonResponse({"detail": "User created successfully", "user_id": self.object.id})
+        # response = super().form_valid(form)
+        return JsonResponse(
+            {
+                "detail": "User created successfully",
+                "user_id": self.object.id,
+            }
+        )
 
     def form_invalid(self, form):
-        return JsonResponse({"detail": "User creation failed", "errors": form.errors}, status=400)
+        return JsonResponse(
+            {"detail": "User creation failed", "errors": form.errors},
+            status=400,
+        )
 
     def post(self, request, *args, **kwargs):
         if "application/json" in request.content_type:
@@ -91,7 +115,10 @@ class UpdateUser(UpdateView):
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         if self.request.user.pk != self.get_object().pk:
-            return JsonResponse({"detail": "You can only update your own details"}, status=403)
+            return JsonResponse(
+                {"detail": "You can only update your own details"},
+                status=403,
+            )
         return super().dispatch(*args, **kwargs)
 
 
@@ -103,7 +130,10 @@ class DeleteUser(DeleteView):
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         if self.request.user.pk != self.get_object().pk:
-            return JsonResponse({"detail": "You can only delete your own account"}, status=403)
+            return JsonResponse(
+                {"detail": "You can only delete your own account"},
+                status=403,
+            )
         else:
             self.request.user.delete()
             return JsonResponse({"detail": "Account deleted successfully."})

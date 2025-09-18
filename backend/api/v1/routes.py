@@ -1,10 +1,10 @@
 """V1 routes"""
 
+from fastapi import APIRouter
+
 from api.v1.account.routes import router as account_router
 from api.v1.business.routes import router as business_router
 from api.v1.core.routes import router as core_router
-
-from fastapi import APIRouter
 
 router = APIRouter(
     prefix="/v1",

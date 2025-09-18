@@ -1,3 +1,3 @@
 """Configs for production environment"""
 
-from .base import *
+from .base import *  # noqa: F403

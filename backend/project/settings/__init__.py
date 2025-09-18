@@ -1,6 +1,6 @@
 from .config import env_setting
 
-if env_setting.DEBUG == True:
-    from .dev import *
+if env_setting.DEBUG:
+    from .dev import *  # noqa: F403
 else:
-    from .prod import *
+    from .prod import *  # noqa: F403

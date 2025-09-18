@@ -1,11 +1,19 @@
 from django.contrib import admin
-from external.models import About, ServiceFeedback, Message, Gallery, FAQ, Document
 from django.utils.translation import gettext_lazy as _
 
 # from unfold.admin import ModelAdmin
 from project.utils.admin import (
-    DevelopmentImportExportModelAdmin,
     CustomImportExportModelAdmin,
+    DevelopmentImportExportModelAdmin,
+)
+
+from external.models import (
+    FAQ,
+    About,
+    Document,
+    Gallery,
+    Message,
+    ServiceFeedback,
 )
 
 # Register your models here.
@@ -78,13 +86,25 @@ class ServiceFeedbackAdmin(DevelopmentImportExportModelAdmin):
         "created_at",
     )
     search_fields = ("sender__username", "message")
-    list_filter = ("rate", "sender_role", "show_in_index", "updated_at", "created_at")
+    list_filter = (
+        "rate",
+        "sender_role",
+        "show_in_index",
+        "updated_at",
+        "created_at",
+    )
     list_editable = ("show_in_index",)
     ordering = ("-created_at",)
     fieldsets = (
         (None, {"fields": ("sender", "message")}),
-        (_("Details"), {"fields": ("sender_role", "rate"), "classes": ["tab"]}),
-        (_("Timestamps"), {"fields": ("updated_at", "created_at"), "classes": ["tab"]}),
+        (
+            _("Details"),
+            {"fields": ("sender_role", "rate"), "classes": ["tab"]},
+        ),
+        (
+            _("Timestamps"),
+            {"fields": ("updated_at", "created_at"), "classes": ["tab"]},
+        ),
     )
     readonly_fields = ("updated_at", "created_at")
 
@@ -129,7 +149,13 @@ class FAQAdmin(CustomImportExportModelAdmin):
 
 @admin.register(Gallery)
 class GalleryAdmin(DevelopmentImportExportModelAdmin):
-    list_display = ("title", "location_name", "date", "show_in_index", "updated_at")
+    list_display = (
+        "title",
+        "location_name",
+        "date",
+        "show_in_index",
+        "updated_at",
+    )
     list_filter = ("show_in_index", "date", "updated_at", "created_at")
     search_fields = ("title", "details", "location_name")
     list_editable = ("show_in_index",)
@@ -142,7 +168,14 @@ class GalleryAdmin(DevelopmentImportExportModelAdmin):
         ),
         (
             _("Status & Date"),
-            {"fields": ("show_in_index", "date", "updated_at", "created_at")},
+            {
+                "fields": (
+                    "show_in_index",
+                    "date",
+                    "updated_at",
+                    "created_at",
+                )
+            },
         ),
     )
     readonly_fields = ("updated_at", "created_at")

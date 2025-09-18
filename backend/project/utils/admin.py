@@ -1,17 +1,18 @@
-from project import settings
+from django.contrib import admin
 from import_export.admin import ImportExportModelAdmin
 from import_export.forms import ImportForm, SelectableFieldsExportForm
-from django.contrib import admin
+
+from project import settings
 
 
 class CustomImportExportModelAdmin(ImportExportModelAdmin):
-    """ImportExportModelAdmin with `ImportForm` and `SelectableFieldsExportForm`"""
+    """ImportExportModelAdmin;`ImportForm` and `SelectableFieldsExportForm`"""
 
     import_class_form = ImportForm
     export_class_form = SelectableFieldsExportForm
 
 
 DevelopmentImportExportModelAdmin = (
-    CustomImportExportModelAdmin if settings.DEBUG == True else admin.ModelAdmin
+    CustomImportExportModelAdmin if settings.DEBUG else admin.ModelAdmin
 )
-"""ModelAdmin class for importing & exporting entries in `development environment`"""
+"""ModelAdmin for importing & exporting entries in `development environment`"""
