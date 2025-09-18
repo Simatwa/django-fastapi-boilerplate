@@ -55,7 +55,6 @@ class MemberGroup(models.Model):
 
 
 class GroupMessage(models.Model):
-
     groups = models.ManyToManyField(
         MemberGroup,
         verbose_name=_("Groups"),
@@ -120,7 +119,6 @@ class GroupMessage(models.Model):
 
 
 class PersonalMessage(models.Model):
-
     user = models.ForeignKey(
         CustomUser,
         on_delete=models.CASCADE,
@@ -184,12 +182,8 @@ class Concern(models.Model):
         help_text=_("Person raising this concern"),
         related_name="concerns",
     )
-    about = models.CharField(
-        max_length=200, verbose_name=_("About"), help_text=_("Main issue being raised.")
-    )
-    details = models.TextField(
-        verbose_name=_("Details"), help_text=_("Concern in details")
-    )
+    about = models.CharField(max_length=200, verbose_name=_("About"), help_text=_("Main issue being raised."))
+    details = models.TextField(verbose_name=_("Details"), help_text=_("Concern in details"))
     response = RichTextField(
         verbose_name=_("Response"),
         help_text=_("Feedback from the concerned body"),

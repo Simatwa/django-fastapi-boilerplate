@@ -15,7 +15,6 @@ import json
 
 
 class Login(View):
-
     http_method_names = ["get", "post"]
 
     @method_decorator(login_not_required)
@@ -45,7 +44,6 @@ class Login(View):
 
 
 class Logout(View):
-
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         logout(request)
@@ -61,14 +59,10 @@ class CreateUser(CreateView):
 
     def form_valid(self, form):
         response = super().form_valid(form)
-        return JsonResponse(
-            {"detail": "User created successfully", "user_id": self.object.id}
-        )
+        return JsonResponse({"detail": "User created successfully", "user_id": self.object.id})
 
     def form_invalid(self, form):
-        return JsonResponse(
-            {"detail": "User creation failed", "errors": form.errors}, status=400
-        )
+        return JsonResponse({"detail": "User creation failed", "errors": form.errors}, status=400)
 
     def post(self, request, *args, **kwargs):
         if "application/json" in request.content_type:
@@ -97,9 +91,7 @@ class UpdateUser(UpdateView):
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         if self.request.user.pk != self.get_object().pk:
-            return JsonResponse(
-                {"detail": "You can only update your own details"}, status=403
-            )
+            return JsonResponse({"detail": "You can only update your own details"}, status=403)
         return super().dispatch(*args, **kwargs)
 
 
@@ -111,9 +103,7 @@ class DeleteUser(DeleteView):
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         if self.request.user.pk != self.get_object().pk:
-            return JsonResponse(
-                {"detail": "You can only delete your own account"}, status=403
-            )
+            return JsonResponse({"detail": "You can only delete your own account"}, status=403)
         else:
             self.request.user.delete()
             return JsonResponse({"detail": "Account deleted successfully."})

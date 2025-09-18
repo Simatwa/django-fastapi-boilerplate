@@ -42,7 +42,6 @@ from project.utils.admin import DevelopmentImportExportModelAdmin
 
 @admin.register(CustomUser)
 class CustomUserAdmin(DevelopmentImportExportModelAdmin):
-
     form = UserChangeForm
     add_form = AdminUserCreationForm
     change_user_password_template = None
@@ -156,9 +155,7 @@ class CustomUserAdmin(DevelopmentImportExportModelAdmin):
     # def lookup_allowed(self, lookup, value, request):
     def lookup_allowed(self, lookup, value, request=None):
         # Don't allow lookups involving passwords.
-        return not lookup.startswith("password") and super().lookup_allowed(
-            lookup, value, request
-        )
+        return not lookup.startswith("password") and super().lookup_allowed(lookup, value, request)
 
     @sensitive_post_parameters_m
     @csrf_protect_m
@@ -216,8 +213,7 @@ class CustomUserAdmin(DevelopmentImportExportModelAdmin):
                 # the admin user has two submit buttons available (for example
                 # when Javascript is disabled).
                 valid_submission = (
-                    form.cleaned_data["set_usable_password"]
-                    or "unset-password" in request.POST
+                    form.cleaned_data["set_usable_password"] or "unset-password" in request.POST
                 )
                 if not valid_submission:
                     msg = gettext("Conflicting form data submitted. Please try again.")
@@ -277,8 +273,7 @@ class CustomUserAdmin(DevelopmentImportExportModelAdmin):
 
         return TemplateResponse(
             request,
-            self.change_user_password_template
-            or "admin/auth/user/change_password.html",
+            self.change_user_password_template or "admin/auth/user/change_password.html",
             context,
         )
 

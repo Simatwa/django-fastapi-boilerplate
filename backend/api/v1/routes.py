@@ -1,5 +1,4 @@
-"""V1 routes
-"""
+"""V1 routes"""
 
 from api.v1.account.routes import router as account_router
 from api.v1.business.routes import router as business_router

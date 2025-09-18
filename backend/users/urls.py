@@ -11,5 +11,5 @@ urlpatterns = [
     path("logout", Logout.as_view(), name="logout"),
 ]
 
-urlpatterns =[] # Comment out this line to make above urlpatterns recognizable.
+urlpatterns = []  # Comment out this line to make above urlpatterns recognizable.
 app_name = "users"

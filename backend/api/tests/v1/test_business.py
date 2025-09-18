@@ -9,7 +9,6 @@ from django.db import IntegrityError
 
 
 class TestBusiness(TestCase):
-
     v1_router.url_path_for
 
     def test_about(self):
@@ -51,26 +50,20 @@ class TestBusiness(TestCase):
             document.save()
         except IntegrityError:
             delete_obj = False
-        resp = client.get(
-            v1_router.url_path_for("Site document"), params=dict(name=document_name)
-        )
+        resp = client.get(v1_router.url_path_for("Site document"), params=dict(name=document_name))
         self.assertTrue(resp.is_success)
         if delete_obj:
             document.delete()
 
     def test_utility(self):
         utility_name = AppUtility.UtilityName.CURRENCY.value
-        utility = AppUtility.objects.create(
-            name=utility_name, description="", value="Ksh"
-        )
+        utility = AppUtility.objects.create(name=utility_name, description="", value="Ksh")
         delete_obj = True
         try:
             utility.save()
         except IntegrityError:
             delete_obj = False
-        resp = client.get(
-            v1_router.url_path_for("App utilities"), params=dict(name=utility_name)
-        )
+        resp = client.get(v1_router.url_path_for("App utilities"), params=dict(name=utility_name))
         self.assertTrue(resp.is_success)
         if delete_obj:
             utility.delete()

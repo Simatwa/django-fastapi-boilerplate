@@ -13,7 +13,6 @@ from django.utils import timezone
 
 
 class CustomUser(AbstractUser):
-
     class UserGender(EnumWithChoices):
         MALE = "M"
         FEMALE = "F"
@@ -122,10 +121,7 @@ class CustomUser(AbstractUser):
 
 
 class AuthToken(models.Model):
-
-    user = models.OneToOneField(
-        CustomUser, on_delete=models.CASCADE, related_name="auth_token"
-    )
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name="auth_token")
     token = models.CharField(help_text=_("auth token value"), max_length=80, null=False)
     expiry_datetime = models.DateTimeField(
         help_text=_("Expiry datetime"), null=False, default=get_expiry_datetime

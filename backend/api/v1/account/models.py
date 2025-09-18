@@ -7,7 +7,6 @@ import re
 
 
 class TokenAuth(BaseModel):
-
     access_token: str
     token_type: Optional[str] = "bearer"
 
@@ -129,6 +128,4 @@ class SendMPESAPopupTo(BaseModel):
     amount: int
 
     class Config:
-        json_schema_extra = {
-            "example": {"phone_number": "+1234567890", "amount": 100.0}
-        }
+        json_schema_extra = {"example": {"phone_number": "+1234567890", "amount": 100.0}}

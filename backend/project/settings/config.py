@@ -19,9 +19,7 @@ class EnvSettings(BaseModel):
     DATABASE_PORT: Optional[int] = 3306
 
     # APPLICATION
-    SECRET_KEY: Optional[str] = (
-        "django-insecure-%sx#6ax4gpycp&ixq9ejj*wwtdk&#g)5@nyhp)4)_9h)h!$@kw"
-    )
+    SECRET_KEY: Optional[str] = "django-insecure-%sx#6ax4gpycp&ixq9ejj*wwtdk&#g)5@nyhp)4)_9h)h!$@kw"
     DEBUG: Optional[bool] = True
     ALLOWED_HOSTS: Optional[list[str]] = ["*"]
     LANGUAGE_CODE: Optional[str] = "en-us"
@@ -50,9 +48,7 @@ class EnvSettings(BaseModel):
     DEMO: Optional[bool] = False
 
     # PROJECT
-    REPOSITORY_LINK: Optional[str] = (
-        "https://github.com/Simatwa/django-fastapi-boilerplate"
-    )
+    REPOSITORY_LINK: Optional[str] = "https://github.com/Simatwa/django-fastapi-boilerplate"
     LICENSE: Optional[str] = "Unspecified"
 
     API_PREFIX: Optional[str] = "/api"

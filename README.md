@@ -14,7 +14,7 @@ Repository for quickly jumpstarting web projects that uses both Django &amp; Fas
 
 | Page       |   Screenshot   |
 |------------|----------------|
-| Landing    | ![Landin page demo](https://raw.githubusercontent.com/Simatwa/management-systems/refs/heads/main/assets/django-fastapi-boilerplate/landing-page.png)  |
+| Landing    | ![Landing page demo](https://raw.githubusercontent.com/Simatwa/management-systems/refs/heads/main/assets/django-fastapi-boilerplate/landing-page.png)  |
 | Admin      |     ![Admin page demo](https://raw.githubusercontent.com/Simatwa/management-systems/refs/heads/main/assets/django-fastapi-boilerplate/dashboard.png) |
 | OpenAPI Docs | ![OpenAPI docs page demo](https://raw.githubusercontent.com/Simatwa/management-systems/refs/heads/main/assets/django-fastapi-boilerplate/openapi-docs.png) |
 

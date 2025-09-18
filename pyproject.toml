@@ -1,0 +1,32 @@
+[project]
+name = "django-fastapi-boilerplate"
+version = "0.1.0"
+description = "Jumpstart web application that uses Django and FastAPI in backend"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = []
+
+[project.urls]
+homepage = "https://github.com/Simatwa/django-fastapi-boilerplate"
+repository = "https://github.com/Simatwa/django-fastapi-boilerplate"
+documentation = "https://github.com/Simatwa/django-fastapi-boilerplate"
+
+[tool.ruff]
+line-length = 110
+
+[tool.ruff.lint]
+select = [
+    "E",      # https://docs.astral.sh/ruff/rules/#error-e
+    "F",      # https://docs.astral.sh/ruff/rules/#pyflakes-f
+    "I",      # https://docs.astral.sh/ruff/rules/#isort-i
+    "FA",     # https://docs.astral.sh/ruff/rules/#flake8-future-annotations-fa
+    "UP",     # https://docs.astral.sh/ruff/rules/#pyupgrade-up
+    "RUF100", # https://docs.astral.sh/ruff/rules/#ruff-specific-rules-ruf
+]
+ignore = [
+    "UP031",  # https://docs.astral.sh/ruff/rules/printf-string-formatting/
+    "F401"    # https://docs.astral.sh/ruff/rules/unused-import
+]
+
+[tool.ruff.lint.isort]
+combine-as-imports = true

@@ -1,5 +1,4 @@
-"""Utilities fuctions for v1
-"""
+"""Utilities fuctions for v1"""
 
 import os
 from project.utils import send_email as django_send_email
@@ -31,9 +30,7 @@ def send_email(subject: str, recipient: str, template_name: str, context: dict):
         get_template_path(template_name),
         context=context,
     )
-    return django_send_email(
-        subject=subject, message="", recipient=recipient, html_message=email_body
-    )
+    return django_send_email(subject=subject, message="", recipient=recipient, html_message=email_body)
 
 
 def get_document_path(path: str | None):

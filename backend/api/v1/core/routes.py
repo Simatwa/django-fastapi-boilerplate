@@ -87,9 +87,7 @@ async def get_group_messages(
 ) -> List[GroupMessageInfo]:
     """Messages from unit group that user is a member"""
     message_list = []
-    search_filter = dict(
-        groups__in=[member_group async for member_group in user.member_groups.all()]
-    )
+    search_filter = dict(groups__in=[member_group async for member_group in user.member_groups.all()])
     if is_read is not None:
         if is_read:
             search_filter["read_by"] = user
@@ -119,9 +117,7 @@ async def mark_group_message_read(
     try:
         target_message = await GroupMessage.objects.prefetch_related("read_by").aget(
             id=id,
-            groups__in=[
-                member_group async for member_group in user.member_groups.all()
-            ],
+            groups__in=[member_group async for member_group in user.member_groups.all()],
         )
         await target_message.read_by.aadd(user)
         return ProcessFeedback(detail="Message marked as read successfully.")
@@ -135,9 +131,7 @@ async def mark_group_message_read(
 @router.get("/concerns", name="Get concerns")
 async def get_concerns(
     user: Annotated[CustomUser, Depends(get_user)],
-    status: Annotated[
-        Concern.ConcernStatus, Query(description="Concern status")
-    ] = None,
+    status: Annotated[Concern.ConcernStatus, Query(description="Concern status")] = None,
 ) -> List[ShallowConcernDetails]:
     """Get concerns ever sent"""
     search_filter = dict(user=user)
@@ -145,9 +139,7 @@ async def get_concerns(
         search_filter["status"] = status.value
     return [
         jsonable_encoder(concern)
-        async for concern in Concern.objects.filter(**search_filter)
-        .order_by("-created_at")
-        .all()[:30]
+        async for concern in Concern.objects.filter(**search_filter).order_by("-created_at").all()[:30]
     ]
 
 

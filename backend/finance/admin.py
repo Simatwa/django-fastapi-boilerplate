@@ -101,7 +101,6 @@ class TransactionAdmin(DevelopmentImportExportModelAdmin):
 
 @admin.register(ExtraFee)
 class ExtraFeeAdmin(DevelopmentImportExportModelAdmin):
-
     list_display = (
         "name",
         "amount",

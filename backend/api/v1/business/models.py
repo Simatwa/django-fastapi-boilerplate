@@ -111,9 +111,7 @@ class BusinessGallery(BaseModel):
     title: str
     details: str
     location_name: str
-    youtube_video_link: Optional[HttpUrl] = Field(
-        None, description="Youtube video link"
-    )
+    youtube_video_link: Optional[HttpUrl] = Field(None, description="Youtube video link")
     picture: Optional[str] = None
     date: date
 

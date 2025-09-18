@@ -9,6 +9,7 @@ from pathlib import Path
 from fastapi import FastAPI, Request, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
+from typing import Annotated
 
 # Django
 # Setup django first before importing any module that will require any of its resource
@@ -74,22 +75,12 @@ app.include_router(v1_router, prefix=env_setting.API_PREFIX)
 app.mount("/d", app=ASGIHandler(), name="django")
 
 if FRONTEND_DIR:
-    # TODO: Incase of using React, implement a unified approach of handling these requests
-    # Such that when user refreshes the page it will not return 404
-    def get_index_reponse():
-        file_path = FRONTEND_DIR / "index.html"
-        if file_path.exists():
-            return Response(content=file_path.read_text(), media_type="text/html")
-        return Response(content="index.html not found", status_code=404)
+    index_file_path = FRONTEND_DIR / "index.html"
 
-    @app.get("/{path}", name="React requests hit here", include_in_schema=False)
-    def serve_react_app(path: str):
-        return get_index_reponse()
-
-    @app.get(
-        "/dashboard/{path}", name="React requests hit here", include_in_schema=False
-    )
-    def serve_react_app_dashboard(path: str):
-        return get_index_reponse()
+    @app.get("/{path:path}", name="React requests hit here", include_in_schema=False)
+    def serve_react_app(
+        path: Annotated[str, Path(description="Resource path")],
+    ):
+        return Response(content=index_file_path.read_text(), media_type="text/html")
 
     app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")

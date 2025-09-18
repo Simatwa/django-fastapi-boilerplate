@@ -29,9 +29,7 @@ def send_email(subject: str, message: str, recipient: str, html_message: str = N
     )
 
 
-def send_email_from_template(
-    subject: str, template_name: str, context: dict, recipient: str
-):
+def send_email_from_template(subject: str, template_name: str, context: dict, recipient: str):
     context.update(
         {
             "site_name": settings.SITE_NAME,
@@ -40,9 +38,7 @@ def send_email_from_template(
         }
     )
     html_message = render_to_string(template_name=template_name, context=context)
-    return send_email(
-        subject=subject, message="", recipient=recipient, html_message=html_message
-    )
+    return send_email(subject=subject, message="", recipient=recipient, html_message=html_message)
 
 
 def get_expiry_datetime(minutes: float = 30) -> datetime:
@@ -59,7 +55,6 @@ def format_datetime(date_time: datetime) -> str:
 
 
 class EnumWithChoices(Enum):
-
     @classmethod
     def choices(cls):
         return [(key.value, key.name) for key in cls]

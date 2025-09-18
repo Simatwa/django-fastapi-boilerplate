@@ -183,3 +183,5 @@ document
 gallery
 static
 migrations
+
+commit-*.txt

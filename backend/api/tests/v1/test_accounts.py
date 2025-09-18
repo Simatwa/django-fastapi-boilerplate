@@ -17,25 +17,19 @@ from finance.models import Transaction, Account
 
 
 class TestCaseWithAuth(TestCase):
-
     def setUp(self):
         def get_token():
-            resp = client.post(
-                v1_router.url_path_for("User auth token"), data=test_credentials
-            )
+            resp = client.post(v1_router.url_path_for("User auth token"), data=test_credentials)
             resp.raise_for_status()
             return TokenAuth(**resp.json()).access_token
 
         self.auth_token = get_token()
-        self.auth_client = TestClient(
-            app, base_url, headers={"Authorization": f"Bearer {self.auth_token}"}
-        )
+        self.auth_client = TestClient(app, base_url, headers={"Authorization": f"Bearer {self.auth_token}"})
         """Authenticated client"""
         self.user = CustomUser.objects.get(username=test_credentials["username"])
 
 
 class TestAccounts(TestCaseWithAuth):
-
     def test_fetch_profile(self):
         resp = self.auth_client.get(v1_router.url_path_for("Get user profile"))
         self.assertTrue(resp.is_success)
@@ -79,14 +73,10 @@ class TestAccounts(TestCaseWithAuth):
         transaction.delete()
 
     def test_mpesa_payment_account_details(self):
-        account = Account.objects.create(
-            name="m-PeSA", paybill_number="247246", details="Automated test"
-        )
+        account = Account.objects.create(name="m-PeSA", paybill_number="247246", details="Automated test")
         account.save()
 
-        resp = self.auth_client.get(
-            v1_router.url_path_for("M-Pesa payment account details")
-        )
+        resp = self.auth_client.get(v1_router.url_path_for("M-Pesa payment account details"))
         self.assertTrue(resp.is_success)
         self.assertEqual(
             PaymentAccountDetails(**resp.json()).account_number,
@@ -95,15 +85,11 @@ class TestAccounts(TestCaseWithAuth):
         account.delete()
 
     def test_other_payment_account_details(self):
-        resp = self.auth_client.get(
-            v1_router.url_path_for("Other payment account details")
-        )
+        resp = self.auth_client.get(v1_router.url_path_for("Other payment account details"))
         self.assertTrue(resp.is_success)
 
     def test_send_mpesa_payment_popup(self):
-        account = Account.objects.create(
-            name="m-PeSA", paybill_number="247246", details="Automated test"
-        )
+        account = Account.objects.create(name="m-PeSA", paybill_number="247246", details="Automated test")
         account.save()
         resp = self.auth_client.post(
             v1_router.url_path_for("Send mpesa payment popup"),
