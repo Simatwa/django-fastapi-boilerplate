@@ -60,6 +60,9 @@ class EnvSettings(BaseModel):
 
     API_PREFIX: str | None = "/api"
 
+    TURNSTILE_SITE_KEY: str | None = None
+    TURNSTILE_SECRET_KEY: str | None = None
+
     @field_validator("API_PREFIX")
     def validate_api_prefix(value: str):
         if not value.startswith("/"):

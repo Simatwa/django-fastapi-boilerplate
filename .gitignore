@@ -185,3 +185,5 @@ static
 migrations
 
 commit-*.txt
+
+test-*.py

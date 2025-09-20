@@ -1,6 +1,5 @@
 """Utility functions for user fastapi-app"""
 
-import asyncio
 import random
 import uuid
 from string import ascii_lowercase

@@ -9,3 +9,4 @@ psycopg2>=2.9.10  # for Postgres
 django-import-export[all]>=4.3.7
 django-cors-headers==4.7.0
 django-ckeditor==6.7.2
+httpx>=0.28.1
