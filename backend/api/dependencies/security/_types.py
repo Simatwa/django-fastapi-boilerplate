@@ -29,4 +29,4 @@ class TurnstileVerificationResponse(BaseModel):
 
 
 class TurnstileToken(BaseModel):
-    turnstile_token: str
+    turnstile_token: str | None = None

@@ -107,7 +107,7 @@ class CaptchaRequired:
         self,
         token_key: str = DEFAULT_TOKEN_KEY,
         auto_error: bool = True,
-        ensure_successful: bool = True,
+        ensure_successful: bool = env_setting.DEMO,
     ):
         self.turnstile_token = TurnstileToken(
             token_key=token_key, auto_error=auto_error
