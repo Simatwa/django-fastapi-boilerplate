@@ -177,11 +177,9 @@ cython_debug/
 exports
 
 # Models
-about
-customuser
-document
-gallery
-static
+backend/files/*
+!backend/files/media/default/*
+
 migrations
 
 commit-*.txt

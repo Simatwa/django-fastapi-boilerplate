@@ -17,7 +17,7 @@ class EnvSettings(BaseModel):
     DATABASE_USER: str = "developer"
     DATABASE_PASSWORD: str = "development"
     DATABASE_HOST: str | None = "localhost"
-    DATABASE_PORT: int | None = 3306
+    DATABASE_PORT: int | None = 5432
 
     # APPLICATION
     SECRET_KEY: str | None = (

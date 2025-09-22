@@ -133,6 +133,7 @@ class ServiceFeedback(models.Model):
         CUSTOMER = "Customer"
         MANAGER = "Manager"
         VISITOR = "Visitor"
+        FOUNDER = "Founder"
 
     sender = models.OneToOneField(
         CustomUser,
