@@ -59,6 +59,7 @@ class EnvSettings(BaseModel):
     LICENSE: str | None = "Unspecified"
 
     API_PREFIX: str | None = "/api"
+    DJANGO_PREFIX: str | None = "/d"
 
     TURNSTILE_SITE_KEY: str | None = None
     TURNSTILE_SECRET_KEY: str | None = None
@@ -67,6 +68,17 @@ class EnvSettings(BaseModel):
     def validate_api_prefix(value: str):
         if not value.startswith("/"):
             value = "/" + value
+        return value
+
+    @field_validator("API_PREFIX", "DJANGO_PREFIX")
+    def validate_route_prefixes(value: str):
+        if not value.startswith("/"):
+            raise ValueError(
+                "Value for route prefix must start with / (forward slash)"
+            )
+        if value.endswith("/"):
+            value = value[:-1]
+
         return value
 
 

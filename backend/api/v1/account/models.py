@@ -1,22 +1,23 @@
 import re
 from datetime import datetime
 
-from finance.models import Transaction
-from pydantic import BaseModel, field_validator
-from users.models import CustomUser
+from finance._enums import TransactionMeans, TransactionType
+from pydantic import BaseModel, ConfigDict, field_validator
+from users._enums import UserGender
 
 
 class TokenAuth(BaseModel):
     access_token: str
     token_type: str | None = "bearer"
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "access_token": "pms_27b9d79erc245r44b9rba2crd2273b5cbb71",
                 "token_type": "bearer",
             }
         }
+    )
 
 
 class ResetPassword(BaseModel):
@@ -43,14 +44,15 @@ class ResetPassword(BaseModel):
             raise ValueError("Invalid token")
         return token
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "username": "Smartwa",
                 "new_password": "_Cljsuw376j$",
                 "token": "0IJ4826L",
             }
         }
+    )
 
 
 class EditablePersonalData(BaseModel):
@@ -60,8 +62,8 @@ class EditablePersonalData(BaseModel):
     phone_number: str | None = None
     email: str | None = None
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "first_name": "John",
                 "last_name": "Doe",
@@ -70,18 +72,19 @@ class EditablePersonalData(BaseModel):
                 "email": "john.doe@example.com",
             }
         }
+    )
 
 
 class UserProfile(EditablePersonalData):
     username: str
-    gender: CustomUser.UserGender
+    gender: UserGender
     account_balance: float
     profile: str | None = None
     is_staff: bool
     date_joined: datetime
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "first_name": "John",
                 "last_name": "Doe",
@@ -96,12 +99,13 @@ class UserProfile(EditablePersonalData):
                 "date_joined": "2023-01-01T00:00:00",
             }
         }
+    )
 
 
 class TransactionInfo(BaseModel):
-    type: Transaction.TransactionType
+    type: TransactionType
     amount: float
-    means: Transaction.TransactionMeans
+    means: TransactionMeans
     reference: str
     notes: str | None = None
     created_at: datetime
@@ -113,8 +117,8 @@ class PaymentAccountDetails(BaseModel):
     account_number: str
     details: str | None
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "name": "M-PESA",
                 "paybill_number": "123456",
@@ -122,13 +126,15 @@ class PaymentAccountDetails(BaseModel):
                 "details": "Main business account",
             }
         }
+    )
 
 
 class SendMPESAPopupTo(BaseModel):
     phone_number: str
     amount: int
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {"phone_number": "+1234567890", "amount": 100.0}
         }
+    )

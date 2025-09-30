@@ -5,20 +5,17 @@ from django.utils import timezone
 from django.utils.translation import gettext as _
 from finance.models import UserAccount
 from project.utils import (
-    EnumWithChoices,
     generate_document_filepath,
     get_expiry_datetime,
 )
+from project.utils.models import DumpableModelMixin
+
+from ._enums import UserGender
 
 # Create your models here.
 
 
-class CustomUser(AbstractUser):
-    class UserGender(EnumWithChoices):
-        MALE = "M"
-        FEMALE = "F"
-        OTHER = "O"
-
+class CustomUser(DumpableModelMixin, AbstractUser):
     date_of_birth = models.DateField(
         verbose_name=_("Date of birth"),
         help_text=_("User's date of birth"),
@@ -119,13 +116,13 @@ class CustomUser(AbstractUser):
             email=self.email,
             username=self.username,
             account_balance=self.account.balance,
-            profile=self.profile.url,
+            profile=self.profile.url if self.profile else None,
             is_staff=self.is_staff,
             date_joined=self.date_joined,
         )
 
 
-class AuthToken(models.Model):
+class AuthToken(DumpableModelMixin):
     user = models.OneToOneField(
         CustomUser, on_delete=models.CASCADE, related_name="auth_token"
     )

@@ -31,3 +31,18 @@ runserver-uwsgi:
 
 runserver-api:
 	python -m api run api
+
+dumpdata:
+	python manage.py dumpdata \
+    --natural-foreign \
+    --natural-primary \
+    --indent 4 \
+    --exclude auth.permission \
+    --exclude contenttypes \
+    --exclude sessions \
+    --exclude admin.logentry \
+	> db.json
+
+
+loaddata:
+	python manage.py loaddata db.json

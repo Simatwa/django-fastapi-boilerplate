@@ -12,7 +12,7 @@ from fastapi import (
     Query,
     status,
 )
-from fastapi.encoders import jsonable_encoder
+from management._enums import ConcernStatus
 from management.models import (
     Concern,
     GroupMessage,
@@ -55,7 +55,7 @@ async def get_personal_messages(
     if category is not None:
         search_filter["category"] = category.value
     return [
-        jsonable_encoder(message)
+        message.model_dump()
         async for message in PersonalMessage.objects.filter(**search_filter)
         .order_by("-created_at")
         .all()[:30]
@@ -148,7 +148,7 @@ async def mark_group_message_read(
 async def get_concerns(
     user: Annotated[CustomUser, Depends(get_user)],
     status: Annotated[
-        Concern.ConcernStatus, Query(description="Concern status")
+        ConcernStatus, Query(description="Concern status")
     ] = None,
 ) -> list[ShallowConcernDetails]:
     """Get concerns ever sent"""
@@ -156,7 +156,7 @@ async def get_concerns(
     if status is not None:
         search_filter["status"] = status.value
     return [
-        jsonable_encoder(concern)
+        concern.model_dump()
         async for concern in Concern.objects.filter(**search_filter)
         .order_by("-created_at")
         .all()[:30]
@@ -187,8 +187,8 @@ async def update_existing_concern(
             id=id,
             user=user,
             status__in=[
-                Concern.ConcernStatus.OPEN.value,
-                Concern.ConcernStatus.IN_PROGRESS.value,
+                ConcernStatus.OPEN.value,
+                ConcernStatus.IN_PROGRESS.value,
             ],
         )
         target_concern.about = get_value(concern.about, target_concern.about)

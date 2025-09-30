@@ -1,22 +1,15 @@
 from ckeditor.fields import RichTextField
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from project.utils import EnumWithChoices
+from project.utils.models import DumpableModelMixin
 from users.models import CustomUser
+
+from ._enums import ConcernStatus, MessageCategory, UtilityName
 
 # Create your models here.
 
 
-class MessageCategory(EnumWithChoices):
-    GENERAL = "General"
-    PAYMENT = "Payment"
-    MAINTENANCE = "Maintenance"
-    PROMOTION = "Promotion"
-    WARNING = "Warning"
-    OTHER = "Other"
-
-
-class MemberGroup(models.Model):
+class MemberGroup(DumpableModelMixin):
     name = models.CharField(
         max_length=100,
         verbose_name=_("Name"),
@@ -53,7 +46,7 @@ class MemberGroup(models.Model):
         verbose_name_plural = _("Member Groups")
 
 
-class GroupMessage(models.Model):
+class GroupMessage(DumpableModelMixin):
     groups = models.ManyToManyField(
         MemberGroup,
         verbose_name=_("Groups"),
@@ -100,15 +93,6 @@ class GroupMessage(models.Model):
         help_text=_("Date and time when the message was last updated"),
     )
 
-    def model_dump(self):
-        return dict(
-            id=self.id,
-            category=self.category,
-            subject=self.subject,
-            content=self.content,
-            created_at=self.created_at,
-        )
-
     class Meta:
         verbose_name = _("Group Message")
         verbose_name_plural = _("Group Messages")
@@ -117,7 +101,7 @@ class GroupMessage(models.Model):
         return f"{self.subject} ({self.category})"
 
 
-class PersonalMessage(models.Model):
+class PersonalMessage(DumpableModelMixin):
     user = models.ForeignKey(
         CustomUser,
         on_delete=models.CASCADE,
@@ -169,13 +153,7 @@ class PersonalMessage(models.Model):
         return f"{self.subject} ({self.category}) - {self.user}"
 
 
-class Concern(models.Model):
-    class ConcernStatus(EnumWithChoices):
-        OPEN = "Open"
-        IN_PROGRESS = "In Progress"
-        RESOLVED = "Resolved"
-        CLOSED = "Closed"
-
+class Concern(DumpableModelMixin):
     user = models.ForeignKey(
         CustomUser,
         on_delete=models.CASCADE,
@@ -216,17 +194,6 @@ class Concern(models.Model):
         help_text=_("Date and time when the entry was created"),
     )
 
-    def model_dump(self):
-        return dict(
-            id=self.id,
-            about=self.about,
-            details=self.details,
-            response=self.response,
-            status=self.status,
-            updated_at=self.updated_at,
-            created_at=self.created_at,
-        )
-
     class Meta:
         verbose_name = _("Member Concern")
         verbose_name_plural = _("Member Concerns")
@@ -237,14 +204,8 @@ class Concern(models.Model):
     # TODO: Mail user about changes on status
 
 
-class AppUtility(models.Model):
+class AppUtility(DumpableModelMixin):
     """Utility data for the application such currency"""
-
-    class UtilityName(EnumWithChoices):
-        CURRENCY = "Currency"
-        LIBRARY_OPENING_HOURS = "Library Opening Hours"
-        LIBRARY_CLOSING_HOURS = "Library Closing Hours"
-        BOOKS_BORROWING_LIMIT = "Books borrowing limit"
 
     name = models.CharField(
         max_length=30,

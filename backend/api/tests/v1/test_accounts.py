@@ -1,6 +1,7 @@
 from unittest import TestCase
 
 from fastapi.testclient import TestClient
+from finance._enums import TransactionMeans, TransactionType
 from finance.models import Account, Transaction
 from users.models import AuthToken, CustomUser
 
@@ -66,8 +67,8 @@ class TestAccounts(TestCaseWithAuth):
             )
 
     def test_transactions(self):
-        transaction_type = Transaction.TransactionType.DEPOSIT.value
-        transaction_means = Transaction.TransactionMeans.OTHER.value
+        transaction_type = TransactionType.DEPOSIT.value
+        transaction_means = TransactionMeans.OTHER.value
         transaction = Transaction.objects.create(
             user=self.user,
             type=transaction_type,

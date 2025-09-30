@@ -3,10 +3,13 @@ from django.db import models
 # Create your models here.
 from django.utils.translation import gettext_lazy as _
 from project.settings import CURRENCY
-from project.utils import EnumWithChoices, generate_random_token
+from project.utils import generate_random_token
+from project.utils.models import DumpableModelMixin
+
+from finance._enums import FeeName, TransactionMeans, TransactionType
 
 
-class Account(models.Model):
+class Account(DumpableModelMixin):
     name = models.CharField(
         max_length=50, help_text=_("Account name e.g M-PESA")
     )
@@ -47,7 +50,7 @@ class Account(models.Model):
         verbose_name_plural = _("Account Details")
 
 
-class UserAccount(models.Model):
+class UserAccount(DumpableModelMixin):
     balance = models.DecimalField(
         max_digits=8,
         decimal_places=2,
@@ -73,18 +76,7 @@ class UserAccount(models.Model):
         return str(self.balance)
 
 
-class Transaction(models.Model):
-    class TransactionMeans(EnumWithChoices):
-        CASH = "Cash"
-        MPESA = "M-PESA"
-        BANK = "Bank"
-        OTHER = "Other"
-
-    class TransactionType(EnumWithChoices):
-        DEPOSIT = "Deposit"
-        PAYMENT = "Payment"
-        REFUND = "Refund"
-
+class Transaction(DumpableModelMixin):
     user = models.ForeignKey(
         "users.CustomUser",
         verbose_name=_("User"),
@@ -153,11 +145,7 @@ class Transaction(models.Model):
         await super().asave(*args, **kwargs)
 
 
-class ExtraFee(models.Model):
-    class FeeName(EnumWithChoices):
-        LOST_BOOK_PENALTY = "Lost book penalty"
-        LATE_BOOK_RETURN_PENALTY = "Late book return penalty"
-
+class ExtraFee(DumpableModelMixin):
     name = models.CharField(
         max_length=100,
         verbose_name="name",
@@ -184,12 +172,3 @@ class ExtraFee(models.Model):
 
     def __str__(self):
         return f"{self.name} ({CURRENCY}.{self.amount})"
-
-    def model_dump(self):
-        return dict(
-            name=self.name,
-            details=self.details,
-            amount=self.amount,
-            updated_at=self.updated_at,
-            created_at=self.created_at,
-        )

@@ -13,6 +13,7 @@ from fastapi import (
 )
 from fastapi.encoders import jsonable_encoder
 from fastapi.security.oauth2 import OAuth2PasswordRequestFormStrict
+from finance._enums import TransactionMeans, TransactionType
 from finance.models import Account, Transaction
 from project.utils import get_expiry_datetime
 from users.models import AuthToken, CustomUser
@@ -121,11 +122,11 @@ async def check_if_username_exists(
 async def get_financial_transactions(
     user: Annotated[CustomUser, Depends(get_user)],
     means: Annotated[
-        Transaction.TransactionMeans,
+        TransactionMeans,
         Query(description="Transaction means"),
     ] = None,
     type: Annotated[
-        Transaction.TransactionType, Query(description="Transaction type")
+        TransactionType, Query(description="Transaction type")
     ] = None,
 ) -> list[TransactionInfo]:
     """Get complete financial transactions"""
@@ -229,9 +230,9 @@ async def send_mpesa_popup_to(
         # user.account.save()
         new_transaction = await Transaction.objects.acreate(
             user=user,
-            type=Transaction.TransactionType.DEPOSIT.value,
+            type=TransactionType.DEPOSIT.value,
             amount=amount,
-            means=Transaction.TransactionMeans.MPESA.value,
+            means=TransactionMeans.MPESA.value,
         )
         await new_transaction.asave()
 

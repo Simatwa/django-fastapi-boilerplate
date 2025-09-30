@@ -1,5 +1,5 @@
 from fastapi.testclient import TestClient
-from users.models import CustomUser
+from users.models import CustomUser  # noqa: F401
 
 from api import app
 

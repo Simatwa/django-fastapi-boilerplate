@@ -1,8 +1,8 @@
 from datetime import datetime
 
-from external.models import ServiceFeedback
-from management.models import Concern, MessageCategory
-from pydantic import BaseModel, HttpUrl
+from external._enums import FeedbackRate
+from management._enums import ConcernStatus, MessageCategory
+from pydantic import BaseModel, ConfigDict, HttpUrl
 
 
 class GroupInfo(BaseModel):
@@ -11,8 +11,8 @@ class GroupInfo(BaseModel):
     social_media_link: HttpUrl
     created_at: datetime
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "name": "Tech Enthusiasts",
                 "description": (
@@ -23,6 +23,7 @@ class GroupInfo(BaseModel):
                 "created_at": "2025-04-18T22:21:43.609831Z",
             },
         }
+    )
 
 
 class PersonalMessageInfo(BaseModel):
@@ -33,8 +34,8 @@ class PersonalMessageInfo(BaseModel):
     created_at: datetime
     is_read: bool
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "id": 26,
                 "category": "General",
@@ -47,6 +48,7 @@ class PersonalMessageInfo(BaseModel):
                 "is_read": False,
             },
         }
+    )
 
 
 class GroupMessageInfo(PersonalMessageInfo):
@@ -57,23 +59,24 @@ class NewConcern(BaseModel):
     about: str
     details: str
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "about": "Service Quality",
                 "details": "The service was not up to the expected standards.",
             },
         }
+    )
 
 
 class ShallowConcernDetails(BaseModel):
     id: int
     about: str
-    status: Concern.ConcernStatus
+    status: ConcernStatus
     created_at: datetime
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "id": 101,
                 "about": "Service Quality",
@@ -81,6 +84,7 @@ class ShallowConcernDetails(BaseModel):
                 "created_at": "2025-04-18T22:21:43.609831Z",
             },
         }
+    )
 
 
 class ConcernDetails(ShallowConcernDetails):
@@ -88,8 +92,8 @@ class ConcernDetails(ShallowConcernDetails):
     response: str | None = None
     updated_at: datetime
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "id": 101,
                 "about": "Service Quality",
@@ -103,27 +107,29 @@ class ConcernDetails(ShallowConcernDetails):
                 "updated_at": "2025-04-20T10:15:30.123456Z",
             },
         }
+    )
 
 
 class UpdateConcern(BaseModel):
     about: str | None = None
     details: str | None = None
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        son_schema_extra={
             "example": {
                 "about": "Service Quality",
                 "details": "The service was not up to the expected standards.",
             },
         }
+    )
 
 
 class NewUserFeedback(BaseModel):
     message: str
-    rate: ServiceFeedback.FeedbackRate
+    rate: FeedbackRate
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "message": (
                     "The service was excellent and exceeded expectations."
@@ -131,14 +137,15 @@ class NewUserFeedback(BaseModel):
                 "rate": "Excellent",
             },
         }
+    )
 
 
 class UserFeedbackDetails(NewUserFeedback):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "message": (
                     "The service was excellent and exceeded expectations."
@@ -148,3 +155,4 @@ class UserFeedbackDetails(NewUserFeedback):
                 "updated_at": "2025-04-19T08:30:00.123456Z",
             },
         }
+    )

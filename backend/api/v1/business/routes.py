@@ -1,6 +1,7 @@
 import asyncio
 from typing import Annotated
 
+from external._enums import DocumentName
 from external.models import (
     FAQ,
     About,
@@ -10,7 +11,7 @@ from external.models import (
     ServiceFeedback,
 )
 from fastapi import APIRouter, HTTPException, Query, status
-from fastapi.encoders import jsonable_encoder
+from management._enums import UtilityName
 from management.models import AppUtility
 
 from api.v1.business.models import (
@@ -33,7 +34,8 @@ router = APIRouter(prefix="/business", tags=["Business"])
 async def get_business_details() -> BusinessAbout:
     about = await About.objects.all().alast()
     if about is not None:
-        return jsonable_encoder(about)
+        return about.model_dump()
+
     raise HTTPException(
         status_code=404, detail="Business detail is not yet available."
     )
@@ -64,7 +66,7 @@ async def new_visitor_message(
 @router.get("/galleries", name="Business galleries")
 async def get_business_galleries() -> list[BusinessGallery]:
     return [
-        jsonable_encoder(gallery)
+        gallery.model_dump()
         async for gallery in Gallery.objects.filter(show_in_index=True)
         .all()
         .order_by("-created_at")[:12]
@@ -81,7 +83,7 @@ async def get_client_feedbacks() -> list[UserFeedback]:
     )
     feedback_list = []
     async for feedback in feedbacks:
-        feedback_dict = jsonable_encoder(feedback)
+        feedback_dict = feedback.model_dump()
         feedback_dict["user"] = ShallowUserInfo(**feedback.sender.model_dump())
         feedback_list.append(UserFeedback(**feedback_dict))
     return feedback_list
@@ -91,16 +93,16 @@ async def get_client_feedbacks() -> list[UserFeedback]:
 async def get_faqs() -> list[FAQDetails]:
     """Get frequently asked question"""
     return [
-        FAQDetails(**jsonable_encoder(faq))
+        faq.model_dump()
         async for faq in FAQ.objects.filter(is_shown=True)
-        .order_by("created_at")
+        .order_by("index")
         .all()[:10]
     ]
 
 
 @router.get("/document", name="Site document")
 async def get_site_document(
-    name: Annotated[Document.DocumentName, Query(description="Document name")],
+    name: Annotated[DocumentName, Query(description="Document name")],
 ) -> DocumentInfo:
     """Get site document such as Policy, ToS etc"""
     document = await Document.objects.filter(name=name.value).alast()
@@ -114,15 +116,14 @@ async def get_site_document(
 
 @router.get("/app/utilities", name="App utilities")
 async def get_app_utilities(
-    name: Annotated[
-        AppUtility.UtilityName, Query(description="Name filter")
-    ] = None,
+    name: Annotated[UtilityName, Query(description="Name filter")] = None,
 ) -> list[AppUtilityInfo]:
     """Get app utilities such as currency etc"""
     search_filter = dict()
     if name is not None:
         search_filter["name"] = name.value
+
     return [
-        jsonable_encoder(utility)
+        utility.model_dump()
         async for utility in AppUtility.objects.filter(**search_filter).all()
     ]

@@ -1,16 +1,14 @@
 from datetime import date, datetime
 
-from external.models import ServiceFeedback
-from management.models import AppUtility
+from external._enums import FeedbackRate, SenderRole
+from management._enums import UtilityName
 from pydantic import (
     BaseModel,
+    ConfigDict,
     EmailStr,
     Field,
     HttpUrl,
-    field_validator,
 )
-
-from api.v1.utils import get_document_path
 
 
 class BusinessAbout(BaseModel):
@@ -31,12 +29,8 @@ class BusinessAbout(BaseModel):
     logo: str | None = None
     wallpaper: str | None = None
 
-    @field_validator("logo", "wallpaper")
-    def validate_cover_photo(value):
-        return get_document_path(value)
-
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "name": "Library Management System",
                 "short_name": "Library MS",
@@ -60,6 +54,7 @@ class BusinessAbout(BaseModel):
                 "wallpaper": "/media/default/library_wallpaper.jpg",
             }
         }
+    )
 
 
 class NewVisitorMessage(BaseModel):
@@ -67,14 +62,15 @@ class NewVisitorMessage(BaseModel):
     email: EmailStr
     body: str
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "sender": "Jane Doe",
                 "email": "jane.doe@example.com",
                 "body": "I would like to inquire about your rental services.",
             }
         }
+    )
 
 
 class ShallowUserInfo(BaseModel):
@@ -83,8 +79,8 @@ class ShallowUserInfo(BaseModel):
     last_name: str | None = None
     profile: str | None = None
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "username": "johndoe",
                 "first_name": "John",
@@ -92,17 +88,18 @@ class ShallowUserInfo(BaseModel):
                 "profile": "/media/custom_user/profile.jpg",
             }
         }
+    )
 
 
 class UserFeedback(BaseModel):
     user: ShallowUserInfo
-    sender_role: ServiceFeedback.SenderRole
+    sender_role: SenderRole
     message: str
-    rate: ServiceFeedback.FeedbackRate
+    rate: FeedbackRate
     created_at: datetime
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "sender_role": "Member",
                 "message": "Great service!",
@@ -116,6 +113,7 @@ class UserFeedback(BaseModel):
                 },
             }
         }
+    )
 
 
 class BusinessGallery(BaseModel):
@@ -128,12 +126,8 @@ class BusinessGallery(BaseModel):
     picture: str | None = None
     date: date
 
-    @field_validator("picture")
-    def validate_file(value):
-        return get_document_path(value)
-
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "title": "Library Tour",
                 "details": "A virtual tour of our main library facility.",
@@ -143,14 +137,15 @@ class BusinessGallery(BaseModel):
                 "date": "2024-01-01",
             }
         }
+    )
 
 
 class FAQDetails(BaseModel):
     question: str
     answer: str
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "question": "Can I suggest new books for the library to add?",
                 "answer": (
@@ -159,6 +154,7 @@ class FAQDetails(BaseModel):
                 ),
             }
         }
+    )
 
 
 class DocumentInfo(BaseModel):
@@ -168,18 +164,19 @@ class DocumentInfo(BaseModel):
 
 
 class AppUtilityInfo(BaseModel):
-    name: AppUtility.UtilityName
+    name: UtilityName
     description: str
     value: str
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "name": "Currency",
                 "description": "<p>Transaction Currency</p>",
                 "value": "$",
             }
         }
+    )
 
 
 # TODO: Further business Models

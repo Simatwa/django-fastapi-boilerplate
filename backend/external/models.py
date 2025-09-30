@@ -3,13 +3,16 @@ from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from project.settings import env_setting
-from project.utils import EnumWithChoices, generate_document_filepath
+from project.utils import generate_document_filepath
+from project.utils.models import DumpableModelMixin
 from users.models import CustomUser
+
+from external._enums import DocumentName, FeedbackRate, SenderRole
 
 # Create your models here.
 
 
-class About(models.Model):
+class About(DumpableModelMixin):
     name = models.CharField(
         max_length=40, help_text="The brand name", default="Library MS"
     )
@@ -22,7 +25,10 @@ class About(models.Model):
     )
     details = models.TextField(
         help_text=_("Business entity details"),
-        default="Welcome to our Library Management System. We are committed to enhancing library operations and improving user experiences.",
+        default=(
+            "Welcome to our Library Management System. We are committed to"
+            "enhancing library operations and improving user experiences."
+        ),
         null=False,
         blank=False,
     )
@@ -121,20 +127,7 @@ class About(models.Model):
         return self.name
 
 
-class ServiceFeedback(models.Model):
-    class FeedbackRate(EnumWithChoices):
-        EXCELLENT = "Excellent"
-        GOOD = "Good"
-        AVERAGE = "Average"
-        POOR = "Poor"
-        TERRIBLE = "Terrible"
-
-    class SenderRole(EnumWithChoices):
-        CUSTOMER = "Customer"
-        MANAGER = "Manager"
-        VISITOR = "Visitor"
-        FOUNDER = "Founder"
-
+class ServiceFeedback(DumpableModelMixin):
     sender = models.OneToOneField(
         CustomUser,
         on_delete=models.CASCADE,
@@ -168,16 +161,6 @@ class ServiceFeedback(models.Model):
         help_text=_("Date and time when the entry was created"),
     )
 
-    def model_dump(self):
-        return dict(
-            id=self.id,
-            message=self.message,
-            rate=self.rate,
-            sender_role=self.sender_role,
-            created_at=self.created_at,
-            updated_at=self.updated_at,
-        )
-
     class Meta:
         verbose_name = _("Feedback")
         verbose_name_plural = _("Feedbacks")
@@ -186,7 +169,7 @@ class ServiceFeedback(models.Model):
         return f"{self.rate} feedback from {self.sender}"
 
 
-class Message(models.Model):
+class Message(DumpableModelMixin):
     sender = models.CharField(
         verbose_name=_("Sender"),
         max_length=50,
@@ -218,7 +201,7 @@ class Message(models.Model):
         )
 
 
-class FAQ(models.Model):
+class FAQ(DumpableModelMixin):
     question = models.CharField(
         verbose_name=_("Question"),
         max_length=100,
@@ -227,6 +210,7 @@ class FAQ(models.Model):
     answer = models.TextField(
         verbose_name=_("Answer"), help_text=_("Answer to the question")
     )
+    index = models.IntegerField(help_text=_("Listing index"), default=0)
     is_shown = models.BooleanField(
         verbose_name="Is shown",
         help_text=_("Show this FAQ in website"),
@@ -246,7 +230,7 @@ class FAQ(models.Model):
         verbose_name_plural = _("FAQs")
 
 
-class Gallery(models.Model):
+class Gallery(DumpableModelMixin):
     title = models.CharField(max_length=50, help_text=_("Gallery title"))
     details = models.TextField(help_text=_("What about this gallery?"))
     location_name = models.CharField(
@@ -290,11 +274,7 @@ class Gallery(models.Model):
         verbose_name_plural = _("Galleries")
 
 
-class Document(models.Model):
-    class DocumentName(EnumWithChoices):
-        TERMS_OF_USE = "Terms of Service"
-        POLICY = "Policy"
-
+class Document(DumpableModelMixin):
     name = models.CharField(
         max_length=30,
         verbose_name="name",
@@ -323,13 +303,6 @@ class Document(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.id})"
-
-    def model_dump(self):
-        return dict(
-            name=self.name,
-            content=self.content,
-            updated_at=self.updated_at,
-        )
 
     class Meta:
         verbose_name = _("Document")

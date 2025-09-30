@@ -1,7 +1,9 @@
 from unittest import TestCase
 
 from django.db import IntegrityError
+from external._enums import DocumentName
 from external.models import About, Document
+from management._enums import UtilityName
 from management.models import AppUtility
 
 from api import v1_router
@@ -41,7 +43,7 @@ class TestBusiness(TestCase):
         self.assertTrue(resp.is_success)
 
     def test_document(self):
-        document_name = Document.DocumentName.TERMS_OF_USE.value
+        document_name = DocumentName.TERMS_OF_USE.value
         document = Document.objects.create(
             name=document_name,
             content="",
@@ -56,7 +58,7 @@ class TestBusiness(TestCase):
             document.delete()
 
     def test_utility(self):
-        utility_name = AppUtility.UtilityName.CURRENCY.value
+        utility_name = UtilityName.CURRENCY.value
         utility = AppUtility.objects.create(
             name=utility_name, description="", value="Ksh"
         )
