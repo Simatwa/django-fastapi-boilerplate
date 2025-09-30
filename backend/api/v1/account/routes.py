@@ -33,6 +33,7 @@ from api.v1.account.utils import (
     get_user,
 )
 from api.v1.models import ProcessFeedback
+from finance.models import UserAccount
 from api.v1.utils import get_value, send_email
 
 router = APIRouter(
@@ -84,7 +85,10 @@ async def generate_new_token(
 async def profile_information(
     user: Annotated[CustomUser, Depends(get_user)],
 ) -> UserProfile:
-    return user.model_dump()
+    user_account = await UserAccount.objects.aget(id=user.account.id)
+    user_details = user.model_dump()
+    user_details["account_balance"] = user_account.balance
+    return user_details
 
 
 @router.patch("/profile", name="Update user profile")

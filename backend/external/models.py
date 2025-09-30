@@ -150,6 +150,9 @@ class ServiceFeedback(DumpableModelMixin):
         default=False,
         help_text=_("Display this feedback in website's testimonials section."),
     )
+    list_index = models.IntegerField(
+        help_text=_("Index of the feedback in listing"), default=1
+    )
     updated_at = models.DateTimeField(
         auto_now=True,
         verbose_name=_("updated at"),

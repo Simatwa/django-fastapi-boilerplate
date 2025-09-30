@@ -59,7 +59,9 @@ class CustomUser(DumpableModelMixin, AbstractUser):
         default="default/user.png",
         upload_to=generate_document_filepath,
         validators=[
-            FileExtensionValidator(allowed_extensions=["jpg", "jpeg", "png"])
+            FileExtensionValidator(
+                allowed_extensions=["jpg", "jpeg", "png", "webp"]
+            )
         ],
         blank=True,
         null=True,
@@ -104,22 +106,6 @@ class CustomUser(DumpableModelMixin, AbstractUser):
     @property
     def age(self):
         return timezone.now().date().year - self.date_of_birth.year
-
-    def model_dump(self):
-        return dict(
-            first_name=self.first_name,
-            last_name=self.last_name,
-            date_of_birth=self.date_of_birth,
-            gender=self.gender,
-            address=self.address,
-            phone_number=self.phone_number,
-            email=self.email,
-            username=self.username,
-            account_balance=self.account.balance,
-            profile=self.profile.url if self.profile else None,
-            is_staff=self.is_staff,
-            date_joined=self.date_joined,
-        )
 
 
 class AuthToken(DumpableModelMixin):

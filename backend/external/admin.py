@@ -81,6 +81,7 @@ class ServiceFeedbackAdmin(DevelopmentImportExportModelAdmin):
         "sender",
         "rate",
         "message",
+        "list_index",
         "show_in_index",
         "sender_role",
         "created_at",
@@ -93,13 +94,22 @@ class ServiceFeedbackAdmin(DevelopmentImportExportModelAdmin):
         "updated_at",
         "created_at",
     )
-    list_editable = ("show_in_index",)
-    ordering = ("-created_at",)
+    list_editable = ("show_in_index", "list_index")
+    ordering = ("list_index",)
     fieldsets = (
         (None, {"fields": ("sender", "message")}),
         (
             _("Details"),
             {"fields": ("sender_role", "rate"), "classes": ["tab"]},
+        ),
+        (
+            _("Controls"),
+            {
+                "fields": (
+                    "list_index",
+                    "show_in_index",
+                )
+            },
         ),
         (
             _("Timestamps"),

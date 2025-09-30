@@ -133,6 +133,9 @@ class DumpableModelMixin(models.Model):
 
             if getattr(field, "concrete", False):
                 if isinstance(field, (ForeignKey, OneToOneField)):
+                    if field.name in exclude or all is False:
+                        continue
+
                     related_obj = getattr(self, name, None)
                     if related_obj is None:
                         payload[name] = None

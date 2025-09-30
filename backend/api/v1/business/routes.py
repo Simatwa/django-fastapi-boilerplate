@@ -78,8 +78,9 @@ async def get_client_feedbacks() -> list[UserFeedback]:
     """Get customers' feedback"""
     feedbacks = (
         ServiceFeedback.objects.filter(show_in_index=True)
-        .order_by("-created_at")
-        .all()[:6]
+        .prefetch_related("sender")
+        .order_by("list_index")
+        .all()[:14]
     )
     feedback_list = []
     async for feedback in feedbacks:
