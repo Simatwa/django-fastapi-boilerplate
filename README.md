@@ -40,114 +40,137 @@ Repository for quickly jumpstarting web projects that uses both Django &amp; Fas
 </summary>
 
 ```
-backend
-├── api
-│   ├── cli.py
-│   ├── __init__.py
-│   ├── __main__.py
-│   ├── README.md
-│   ├── tests
-│   │   └── v1
-│   │       ├── __init__.py
-│   │       ├── test_accounts.py
-│   │       ├── test_business.py
-│   │       └── test_core.py
-│   ├── v1
-│   │   ├── account
+.
+├── app.py
+├── backend
+│   ├── api
+│   │   ├── cli.py
+│   │   ├── common.py
+│   │   ├── dependencies
+│   │   │   ├── __init__.py
+│   │   │   └── security
+│   │   │       ├── exceptions.py
+│   │   │       ├── __init__.py
+│   │   │       ├── turnstile.py
+│   │   │       └── _types.py
+│   │   ├── __init__.py
+│   │   ├── __main__.py
+│   │   ├── middleware.py
+│   │   ├── README.md
+│   │   ├── tests
+│   │   │   ├── __init__.py
+│   │   │   ├── utils.py
+│   │   │   └── v1
+│   │   │       ├── __init__.py
+│   │   │       ├── test_accounts.py
+│   │   │       ├── test_business.py
+│   │   │       └── test_core.py
+│   │   ├── v1
+│   │   │   ├── account
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── models.py
+│   │   │   │   ├── routes.py
+│   │   │   │   └── utils.py
+│   │   │   ├── business
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── models.py
+│   │   │   │   └── routes.py
+│   │   │   ├── core
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── models.py
+│   │   │   │   └── routes.py
 │   │   │   ├── __init__.py
 │   │   │   ├── models.py
 │   │   │   ├── routes.py
 │   │   │   └── utils.py
-│   │   ├── business
-│   │   │   ├── __init__.py
-│   │   │   ├── models.py
-│   │   │   └── routes.py
-│   │   ├── core
-│   │   │   ├── __init__.py
-│   │   │   ├── models.py
-│   │   │   └── routes.py
+│   │   └── VERSION
+│   ├── db.sqlite3
+│   ├── external
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── _enums.py
 │   │   ├── __init__.py
 │   │   ├── models.py
-│   │   ├── routes.py
-│   │   └── utils.py
-│   └── VERSION
-├── db.sqlite3
-├── env.example
-├── external
-│   ├── admin.py
-│   ├── apps.py
-│   ├── __init__.py
-│   ├── models.py
-│   ├── static
-│   │   └── external
-│   │       ├── css
-│   │       ├── img
-│   │       │   └── logo.png
-│   │       └── js
-│   ├── tests.py
-│   └── views.py
-├── files
-│   ├── exports
-│   ├── media
-│   │   └── default
-│   │       ├── logo.png
-│   │       └── user.png
-│   └── static
-├── finance
-│   ├── admin.py
-│   ├── apps.py
-│   ├── forms.py
-│   ├── __init__.py
-│   ├── models.py
-│   ├── templatetags
-│   │   └── my_filters.py
-│   ├── tests.py
-│   └── views.py
-├── Makefile
-├── management
-│   ├── admin.py
-│   ├── apps.py
-│   ├── forms.py
-│   ├── __init__.py
-│   ├── models.py
-│   ├── tests.py
-│   └── views.py
-├── manage.py
-├── project
-│   ├── asgi.py
-│   ├── __init__.py
-│   ├── settings
-│   │   ├── base.py
-│   │   ├── config.py
-│   │   ├── dev.py
-│   │   ├── __init__.py
-│   │   └── prod.py
-│   ├── urls.py
-│   ├── utils
+│   │   ├── tests.py
+│   │   └── views.py
+│   ├── files
+│   │   └── media
+│   │       ├── default
+│   │       │   ├── logo.png
+│   │       │   └── user.png
+│   │       └── gallery
+│   │           └── screen_.jpg
+│   ├── finance
 │   │   ├── admin.py
-│   │   └── __init__.py
+│   │   ├── apps.py
+│   │   ├── _enums.py
+│   │   ├── forms.py
+│   │   ├── __init__.py
+│   │   ├── models.py
+│   │   ├── templatetags
+│   │   │   └── my_filters.py
+│   │   ├── tests.py
+│   │   └── views.py
+│   ├── Makefile
+│   ├── management
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── _enums.py
+│   │   ├── forms.py
+│   │   ├── __init__.py
+│   │   ├── models.py
+│   │   ├── tests.py
+│   │   └── views.py
+│   ├── manage.py
+│   ├── project
+│   │   ├── asgi.py
+│   │   ├── __init__.py
+│   │   ├── settings
+│   │   │   ├── base.py
+│   │   │   ├── config.py
+│   │   │   ├── dev.py
+│   │   │   ├── __init__.py
+│   │   │   └── prod.py
+│   │   ├── urls.py
+│   │   ├── utils
+│   │   │   ├── admin.py
+│   │   │   ├── common.py
+│   │   │   ├── __init__.py
+│   │   │   └── models.py
+│   │   └── wsgi.py
+│   ├── requirements.txt
+│   ├── templates
+│   │   ├── api
+│   │   │   └── v1
+│   │   │       └── email
+│   │   │           ├── message_received_confirmation.html
+│   │   │           └── password_reset_token.html
+│   │   ├── success.html
+│   │   └── user_creation.html
+│   ├── users
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── _enums.py
+│   │   ├── forms.py
+│   │   ├── __init__.py
+│   │   ├── models.py
+│   │   ├── tests.py
+│   │   ├── urls.py
+│   │   └── views.py
 │   └── wsgi.py
-├── requirements.txt
-├── templates
-│   ├── api
-│   │   └── v1
-│   │       └── email
-│   │           ├── message_received_confirmation.html
-│   │           └── password_reset_token.html
-│   ├── success.html
-│   └── user_creation.html
-├── users
-│   ├── admin.py
-│   ├── apps.py
-│   ├── forms.py
-│   ├── __init__.py
-│   ├── models.py
-│   ├── tests.py
-│   ├── urls.py
-│   └── views.py
-└── wsgi.py
+├── frontend
+│   ├── css
+│   │   └── main.css
+│   ├── img
+│   │   └── logo.png
+│   ├── index.html
+│   └── js
+│       └── main.js
+├── pyproject.toml
+├── README.md
+└── requirements.txt
 
-30 directories, 76 files
+30 directories, 98 files
 
 ```
 

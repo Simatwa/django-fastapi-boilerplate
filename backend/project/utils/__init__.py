@@ -1,12 +1,13 @@
 """Provides common required functions and classes"""
 
+import os
 import random
 from datetime import datetime, timedelta
 from enum import Enum
-from os import path
 from string import ascii_uppercase, digits
 
 from django.core.mail import send_mail
+from django.db.models import FileField, ImageField
 from django.template.loader import render_to_string
 from django.utils import timezone
 
@@ -14,7 +15,7 @@ from project import settings
 
 
 def generate_document_filepath(instance, filename: str) -> str:
-    filename, extension = path.splitext(filename)
+    filename, extension = os.path.splitext(filename)
     return (
         f"{instance.__class__.__name__.lower()}/{filename}_{instance.id or ''}"
         f"{extension}"
@@ -68,6 +69,20 @@ def generate_random_token(length: int = 8) -> str:
 
 def format_datetime(date_time: datetime) -> str:
     return date_time.strftime("%B %d, %Y, %I:%M %p")
+
+
+def remove_file_from_system(
+    field: ImageField | FileField,
+) -> tuple[bool, Exception | None]:
+    """Remove file from system if exists and return success status"""
+    try:
+        if field:
+            os.remove(field.path)
+
+        return (True, None)
+
+    except Exception as e:
+        return (False, e)
 
 
 class EnumWithChoices(Enum):

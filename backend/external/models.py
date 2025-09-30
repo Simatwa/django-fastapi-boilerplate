@@ -11,6 +11,9 @@ from external._enums import DocumentName, FeedbackRate, SenderRole
 
 # Create your models here.
 
+DEFAULT_LOGO = "default/logo.png"
+DEFAULT_WALLPAPER = "default/wallpaper.jpg"
+
 
 class About(DumpableModelMixin):
     name = models.CharField(
@@ -101,14 +104,14 @@ class About(DumpableModelMixin):
     logo = models.ImageField(
         help_text=_("Library logo  (preferrably 64*64px png)"),
         upload_to=generate_document_filepath,
-        default="default/logo.png",
+        default=DEFAULT_LOGO,
         blank=True,
         null=False,
     )
     wallpaper = models.ImageField(
         help_text=_("Site wallpaper"),
         upload_to=generate_document_filepath,
-        default="default/wallpaper.jpg",
+        default=DEFAULT_WALLPAPER,
         blank=True,
         null=False,
     )

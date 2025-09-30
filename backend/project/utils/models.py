@@ -1,72 +1,136 @@
 import warnings
 from io import BytesIO
+from pathlib import Path
+from typing import Literal
 
 from django.core.files.base import ContentFile
 from django.db import models
+from django.db.models import ImageField
 from django.db.models.fields.related import ForeignKey, OneToOneField
 from PIL import Image
 
 RelationPath = str  # "__"-style
 
 
-def resize_image(image_field, max_width=800, max_height=800):
+def resize_image(
+    image_field: ImageField,
+    max_width=800,
+    max_height=800,
+    img_format: Literal["DEFAULT", "WEBP"] | str = "WEBP",
+    quality: int = 85,
+):
     """
     Resize an image to fit within max_width and max_height while maintaining
-    aspect ratio.
-    Returns a Django ContentFile ready to save to an ImageField.
-
-    ## Usage example
-
-    ```python
-    model_instance.image=resize_image(model_instance.image)
-    ```
+    aspect ratio. Returns a Django ContentFile ready to save to an ImageField.
     """
     img = Image.open(image_field)
-    img_format = img.format or "JPEG"
+
+    final_format = img.format if img_format == "DEFAULT" else img_format
 
     img.thumbnail((max_width, max_height), Image.Resampling.LANCZOS)
 
     buffer = BytesIO()
-    img.save(buffer, format=img_format, optimize=True, quality=85)
-    return ContentFile(buffer.getvalue(), name=image_field.name)
+    img.save(buffer, format=final_format, optimize=True, quality=quality)
+
+    original_name = Path(image_field.name).stem
+    new_name = f"{original_name}.{final_format.lower()}"
+    return ContentFile(buffer.getvalue(), name=new_name)
 
 
-def compress_image(image_field, quality=70):
+def crop_image_to_ratio(
+    image_field,
+    target_width: int = 256,
+    target_height: int = 256,
+    img_format: Literal["DEFAULT", "WEBP"] | str = "WEBP",
+    quality: int = 85,
+) -> ContentFile:
     """
-    Compress an image to reduce file size.
+    Crop an image to the target ratio (e.g. 256x256) and resize.
     Returns a Django ContentFile ready to save to an ImageField.
-    ## Usage example
 
-    ```python
-    model_instance.image=compress_image(model_instance.image)
-    ```
+    Example:
+        instance.avatar = crop_image_to_ratio(instance.avatar, 256, 256)
     """
     img = Image.open(image_field)
-    img_format = img.format or "JPEG"
+    width, height = img.size
+    target_ratio = target_width / target_height
+    current_ratio = width / height
+
+    if current_ratio > target_ratio:  # too wide
+        new_width = int(height * target_ratio)
+        left = (width - new_width) // 2
+        right = left + new_width
+        top, bottom = 0, height
+    else:  # too tall
+        new_height = int(width / target_ratio)
+        top = (height - new_height) // 2
+        bottom = top + new_height
+        left, right = 0, width
+
+    img_cropped = img.crop((left, top, right, bottom))
+    img_resized = img_cropped.resize(
+        (target_width, target_height), Image.Resampling.LANCZOS
+    )
+
+    final_format = img.format if img_format == "DEFAULT" else img_format
 
     buffer = BytesIO()
-    img.save(buffer, format=img_format, optimize=True, quality=quality)
-    return ContentFile(buffer.getvalue(), name=image_field.name)
+    img_resized.save(
+        buffer, format=final_format, optimize=True, quality=quality
+    )
+
+    original_name = Path(image_field.name).stem
+    new_name = f"{original_name}.{final_format.lower()}"
+
+    return ContentFile(buffer.getvalue(), name=new_name)
 
 
-def scale_and_compress(image_field, max_width=800, max_height=800, quality=75):
+def compress_image(
+    image_field: ImageField,
+    quality=85,
+    img_format: Literal["DEFAULT", "WEBP"] | str = "WEBP",
+):
     """
-    Resize and compress an image in one step.
-
-    ## Usage example
-
-    ```python
-    model_instance.image=scale_and_resize(model_instance.image)
-    ```
+    Compress an image to reduce file size. Returns a Django ContentFile ready
+    to save to an ImageField.
     """
     img = Image.open(image_field)
-    img_format = img.format or "JPEG"
+    final_format = img.format if img_format == "DEFAULT" else img_format
+
+    buffer = BytesIO()
+    img.save(buffer, format=final_format, optimize=True, quality=quality)
+
+    original_name = Path(image_field.name).stem
+    new_name = f"{original_name}.{final_format.lower()}"
+    return ContentFile(buffer.getvalue(), name=new_name)
+
+
+def scale_and_compress(
+    image_field: ImageField,
+    max_width=800,
+    max_height=800,
+    quality=85,
+    img_format: Literal["DEFAULT", "WEBP"] | str = "WEBP",
+):
+    """
+    Resize and compress an image in one step. Returns a Django ContentFile
+    ready to save to an ImageField.
+    """
+    img = Image.open(image_field)
+    final_format = img.format if img_format == "DEFAULT" else img_format
 
     img.thumbnail((max_width, max_height), Image.Resampling.LANCZOS)
 
     buffer = BytesIO()
-    img.save(buffer, format=img_format, optimize=True, quality=quality)
-    return ContentFile(buffer.getvalue(), name=image_field.name)
+    img.save(buffer, format=final_format, optimize=True, quality=quality)
+
+    original_name = Path(image_field.name).stem
+    new_name = f"{original_name}.{final_format.lower()}"
+    return ContentFile(buffer.getvalue(), name=new_name)
+
+
+def convert_to_webp(image_field: ImageField, quality: int = 85):
+    return compress_image(image_field, quality)
 
 
 class DumpableModelMixin(models.Model):

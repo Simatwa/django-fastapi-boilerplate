@@ -14,6 +14,8 @@ from ._enums import UserGender
 
 # Create your models here.
 
+DEFAULT_PROFILE = "default/user.png"
+
 
 class CustomUser(DumpableModelMixin, AbstractUser):
     date_of_birth = models.DateField(
@@ -56,7 +58,7 @@ class CustomUser(DumpableModelMixin, AbstractUser):
 
     profile = models.ImageField(
         _("Profile Picture"),
-        default="default/user.png",
+        default=DEFAULT_PROFILE,
         upload_to=generate_document_filepath,
         validators=[
             FileExtensionValidator(
