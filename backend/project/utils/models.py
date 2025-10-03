@@ -1,3 +1,4 @@
+import os
 import warnings
 from io import BytesIO
 from pathlib import Path
@@ -5,11 +6,14 @@ from typing import Literal
 
 from django.core.files.base import ContentFile
 from django.db import models
-from django.db.models import ImageField
+from django.db.models import FileField, ImageField
 from django.db.models.fields.related import ForeignKey, OneToOneField
+from model_utils import FieldTracker
 from PIL import Image
 
-RelationPath = str  # "__"-style
+from project.utils import cloud_storage
+
+RelationPath = str
 
 
 def resize_image(
@@ -131,6 +135,20 @@ def scale_and_compress(
 
 def convert_to_webp(image_field: ImageField, quality: int = 85):
     return compress_image(image_field, quality)
+
+
+def remove_file_from_system(
+    field: ImageField | FileField,
+) -> tuple[bool, Exception | None]:
+    """Remove file from system if exists and return success status"""
+    try:
+        if field:
+            os.remove(field.path)
+
+        return (True, None)
+
+    except Exception as e:
+        return (False, e)
 
 
 class DumpableModelMixin(models.Model):
@@ -334,3 +352,41 @@ def _flatten_rel_map(rel_map: dict[str, any], prefix: str = "") -> list[str]:
         if v:
             paths.extend(_flatten_rel_map(v, new_prefix))
     return paths
+
+
+class ModelCloudFileSupport(models.Model):
+    class Meta:
+        abstract = True
+
+    tracker = FieldTracker()
+
+    def save(self, *args, **kwargs):
+        updated = False
+        for field_name in self.tracker.fields:
+            if not self.tracker.has_changed(field_name):
+                continue
+
+            file_field = getattr(self, field_name)
+            if not file_field:
+                continue
+
+            file_url = cloud_storage.upload_sync(file_field)
+            if file_url:
+                setattr(self, f"{field_name}_cloud_url", file_url)
+                updated = True
+
+        super().save(*args, **kwargs)
+
+        if updated:
+            super().save(
+                update_fields=[f"{f}_cloud_url" for f in self.tracker.fields]
+            )
+
+    def model_dump_with_cloud_url(self, dumped: dict) -> dict:
+        for field_name in self.tracker.fields:
+            dumped[field_name] = cloud_storage.get_best_file_url(
+                local_file=getattr(self, field_name),
+                cloud_url=getattr(self, f"{field_name}_cloud_url"),
+            )
+
+        return dumped

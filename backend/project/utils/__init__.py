@@ -7,11 +7,13 @@ from enum import Enum
 from string import ascii_uppercase, digits
 
 from django.core.mail import send_mail
-from django.db.models import FileField, ImageField
 from django.template.loader import render_to_string
 from django.utils import timezone
 
 from project import settings
+from project.utils.cloud import CloudStorage
+
+cloud_storage = CloudStorage()
 
 
 def generate_document_filepath(instance, filename: str) -> str:
@@ -69,20 +71,6 @@ def generate_random_token(length: int = 8) -> str:
 
 def format_datetime(date_time: datetime) -> str:
     return date_time.strftime("%B %d, %Y, %I:%M %p")
-
-
-def remove_file_from_system(
-    field: ImageField | FileField,
-) -> tuple[bool, Exception | None]:
-    """Remove file from system if exists and return success status"""
-    try:
-        if field:
-            os.remove(field.path)
-
-        return (True, None)
-
-    except Exception as e:
-        return (False, e)
 
 
 class EnumWithChoices(Enum):

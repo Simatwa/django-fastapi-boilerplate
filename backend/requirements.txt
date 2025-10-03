@@ -10,3 +10,4 @@ django-import-export[all]>=4.3.7
 django-cors-headers==4.7.0
 django-ckeditor==6.7.2
 httpx>=0.28.1
+django-model-utils==5.0.0

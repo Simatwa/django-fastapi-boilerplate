@@ -32,13 +32,13 @@ from project.settings import (  # noqa: E402
     env_setting,
 )
 
-from api.common import api_description, api_version  # noqa: E402
+from api.common import api_description  # noqa: E402
 from api.middleware import register_middlewares  # noqa: E402
 from api.v1 import router as v1_router  # noqa: E402
 
 fastapi = FastAPI(
     title=f"{env_setting.SITE_NAME}  - API",
-    version=api_version,
+    version=env_setting.API_VERSION,
     description=api_description,
     license_info={
         "name": f"{env_setting.LICENSE} License",
@@ -58,6 +58,13 @@ app.mount(MEDIA_URL[:-1], StaticFiles(directory=MEDIA_ROOT), name="media")
 
 # Include API router
 app.include_router(v1_router, prefix=env_setting.API_PREFIX)
+
+
+@app.get("/health", name="Check API health")
+async def echo_health() -> dict:
+    """Check API working status"""
+    return {}
+
 
 # Mount django for admin & account creation views ie. /d/admin & /d/user/* etc
 app.mount(env_setting.DJANGO_PREFIX, app=ASGIHandler(), name="django")

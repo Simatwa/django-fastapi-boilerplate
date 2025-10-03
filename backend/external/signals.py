@@ -1,7 +1,6 @@
 from django.db.models.signals import pre_delete, pre_save
 from django.dispatch import receiver
-from project.utils import remove_file_from_system
-from project.utils.models import convert_to_webp
+from project.utils.models import convert_to_webp, remove_file_from_system
 
 from external.models import DEFAULT_LOGO, DEFAULT_WALLPAPER, About, Gallery
 

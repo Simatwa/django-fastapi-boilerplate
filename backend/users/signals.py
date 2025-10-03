@@ -1,7 +1,6 @@
 from django.db.models.signals import pre_delete, pre_save
 from django.dispatch import receiver
-from project.utils import remove_file_from_system
-from project.utils.models import crop_image_to_ratio
+from project.utils.models import crop_image_to_ratio, remove_file_from_system
 
 from users.models import DEFAULT_PROFILE, CustomUser
 

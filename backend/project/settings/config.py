@@ -29,6 +29,7 @@ class EnvSettings(BaseModel):
     TIME_ZONE: str | None = "Africa/Nairobi"
     SITE_NAME: str | None = "MySite"
     SITE_ADDRESS: Annotated[str, HttpUrl] = "http://localhost:8000"
+    API_VERSION: str | None = "0.1.0"
     FRONTEND_DIR: str | None = None
 
     # E-MAIL
@@ -46,6 +47,27 @@ class EnvSettings(BaseModel):
     CORS_ALLOWED_ORIGINS: list[str] = []
     CORS_ALLOWED_ORIGIN_REGEXES: list[str] = []
     CORS_ALLOW_ALL_ORIGINS: bool | None = False
+    CORS_ALLOW_METHODS: list[
+        Literal[
+            "DELETE",
+            "GET",
+            "HEAD",
+            "OPTIONS",
+            "PATCH",
+            "POST",
+            "PUT",
+        ]
+    ] = [
+        "DELETE",
+        "GET",
+        "HEAD",
+        "OPTIONS",
+        "PATCH",
+        "POST",
+        "PUT",
+    ]
+    CORS_ALLOW_CREDENTIALS: bool | None = False
+    CORS_ALLOW_HEADERS: list[str] = ["*"]
 
     # UTILS
     CURRENCY: str | None = "Ksh"
@@ -64,11 +86,23 @@ class EnvSettings(BaseModel):
     TURNSTILE_SITE_KEY: str | None = None
     TURNSTILE_SECRET_KEY: str | None = None
 
-    @field_validator("API_PREFIX")
-    def validate_api_prefix(value: str):
-        if not value.startswith("/"):
-            value = "/" + value
-        return value
+    #  Cloudstorage
+    CLOUDSTORAGE_URL: None | HttpUrl = None
+    CLOUDSTORAGE_TOKEN: str | None = None
+    DELETE_LOCALFILE: bool = False
+
+    @field_validator(
+        "CORS_ALLOWED_ORIGINS",
+        "CORS_ALLOWED_ORIGIN_REGEXES",
+        "ALLOWED_HOSTS",
+        "CORS_ALLOW_METHODS",
+        "CORS_ALLOW_HEADERS",
+        mode="before",
+    )
+    def strip_list_elements(values: str):
+        if values:
+            values = [element.strip() for element in values]
+        return values
 
     @field_validator("API_PREFIX", "DJANGO_PREFIX")
     def validate_route_prefixes(value: str):
@@ -80,6 +114,10 @@ class EnvSettings(BaseModel):
             value = value[:-1]
 
         return value
+
+    @property
+    def cors_allowed_origins(self):
+        return self.CORS_ALLOWED_ORIGINS or ["*"]
 
 
 env_setting = EnvSettings(**Envist().get_all())
