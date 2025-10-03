@@ -1,46 +1,36 @@
 from django.db.models.signals import pre_delete, pre_save
 from django.dispatch import receiver
-from project.utils.models import convert_to_webp, remove_file_from_system
+from project.utils.models import (
+    convert_to_webp,
+    is_image_processed,
+    remove_file_if_possible,
+)
 
 from external.models import DEFAULT_LOGO, DEFAULT_WALLPAPER, About, Gallery
 
 
 @receiver(pre_delete, sender=Gallery)
 def auto_delete_gallery_pic(sender, instance: Gallery, **kwargs):
-    remove_file_from_system(instance.picture)
+    remove_file_if_possible(instance.picture)
 
 
 @receiver(pre_save, sender=Gallery)
 def auto_webp_gallery_pic(sender, instance: Gallery, **kwargs):
-    if instance.picture and instance.picture._committed is False:
+    if not is_image_processed(instance.picture):
         instance.picture = convert_to_webp(instance.picture)
 
 
 @receiver(pre_delete, sender=About)
 def auto_delete_logo_and_cover(sender, instance: About, **kwargs):
-    for entry in filter(
-        lambda v: v.name != DEFAULT_LOGO and v.name != DEFAULT_WALLPAPER,
-        {instance.logo, instance.wallpaper},
-    ):
-        remove_file_from_system(entry)
+    remove_file_if_possible(instance.logo, DEFAULT_LOGO)
+    remove_file_if_possible(instance.wallpaper, DEFAULT_WALLPAPER)
 
 
 @receiver(pre_save, sender=About)
 def ensure_logo_and_wallpaper_not_empty(sender, instance: About, **kwargs):
     # also does the compression
-    if not instance.logo:
-        instance.logo.name = DEFAULT_LOGO
-
-    elif (
-        instance.logo.name != DEFAULT_LOGO and instance.logo._committed is False
-    ):
+    if not is_image_processed(instance.logo, DEFAULT_LOGO):
         instance.logo = convert_to_webp(instance.logo)
 
-    if not instance.wallpaper:
-        instance.wallpaper.name = DEFAULT_WALLPAPER
-
-    elif (
-        instance.wallpaper.name != DEFAULT_WALLPAPER
-        and instance.wallpaper._committed is False
-    ):
+    if not is_image_processed(instance.wallpaper, DEFAULT_WALLPAPER):
         instance.wallpaper = convert_to_webp(instance.wallpaper)

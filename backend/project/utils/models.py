@@ -15,6 +15,93 @@ from project.utils import cloud_storage
 
 RelationPath = str
 
+IMAGE_FILENAME_PREFIX = (
+    "x_prcsd-"  # TODO: Change this to anything of your choice
+)
+
+
+def _get_image_filename(
+    original_name: str, final_format: str, prefix: str = IMAGE_FILENAME_PREFIX
+) -> str:
+    return f"{prefix}{original_name}.{final_format.lower()}"
+
+
+def is_image_processed(
+    image: ImageField,
+    default: str = None,
+    name_prefix: str = IMAGE_FILENAME_PREFIX,
+) -> bool:
+    """Whether saved instance.field has ever hit any image processing function
+    of this module. If EMPTY set the default as its value.name
+
+    Args:
+        image (ImageField): Image field
+        default (str, optional): Default field value. Defaults to None.
+        name_prefix (str, optional). Defaults to IMAGE_FILENAME_PREFIX.
+
+    Returns:
+        bool
+    """
+    if image:
+        if default and image.name == default:
+            return True
+
+        return Path(image.name).name.startswith(name_prefix)
+
+    elif default:
+        image.name = default
+
+    return True  # Avoid processing none
+
+
+def remove_file_from_system(
+    field: ImageField | FileField,
+) -> tuple[bool, Exception | None]:
+    """Remove file from system if exists and return success status"""
+    try:
+        if field:
+            os.remove(field.path)
+
+        return (True, None)
+
+    except Exception as e:
+        return (False, e)
+
+
+def can_remove_file(
+    field: ImageField | FileField,
+    default: str = None,
+) -> bool:
+    """Whether field value can be removed
+
+    Args:
+        field (ImageField | FileField): Field value
+        default (str, optional): Default field value. Defaults to None.
+
+    Returns:
+        bool
+    """
+    if field:
+        if default:
+            return field.name != default
+        return True
+
+    return False
+
+
+def remove_file_if_possible(
+    field: ImageField | FileField,
+    default: str = None,
+) -> None:
+    """Checks whether file can be removed. If yes remove it.
+
+    Args:
+        field (ImageField | FileField): Field to check against.
+        default (str, optional): Default field.name. Defaults to None.
+    """
+    if can_remove_file(field, default):
+        remove_file_from_system(field)
+
 
 def resize_image(
     image_field: ImageField,
@@ -37,12 +124,12 @@ def resize_image(
     img.save(buffer, format=final_format, optimize=True, quality=quality)
 
     original_name = Path(image_field.name).stem
-    new_name = f"{original_name}.{final_format.lower()}"
+    new_name = _get_image_filename(original_name, final_format)
     return ContentFile(buffer.getvalue(), name=new_name)
 
 
 def crop_image_to_ratio(
-    image_field,
+    image_field: ImageField,
     target_width: int = 256,
     target_height: int = 256,
     img_format: Literal["DEFAULT", "WEBP"] | str = "WEBP",
@@ -84,7 +171,7 @@ def crop_image_to_ratio(
     )
 
     original_name = Path(image_field.name).stem
-    new_name = f"{original_name}.{final_format.lower()}"
+    new_name = _get_image_filename(original_name, final_format)
 
     return ContentFile(buffer.getvalue(), name=new_name)
 
@@ -105,7 +192,7 @@ def compress_image(
     img.save(buffer, format=final_format, optimize=True, quality=quality)
 
     original_name = Path(image_field.name).stem
-    new_name = f"{original_name}.{final_format.lower()}"
+    new_name = _get_image_filename(original_name, final_format)
     return ContentFile(buffer.getvalue(), name=new_name)
 
 
@@ -129,26 +216,12 @@ def scale_and_compress(
     img.save(buffer, format=final_format, optimize=True, quality=quality)
 
     original_name = Path(image_field.name).stem
-    new_name = f"{original_name}.{final_format.lower()}"
+    new_name = _get_image_filename(original_name, final_format)
     return ContentFile(buffer.getvalue(), name=new_name)
 
 
 def convert_to_webp(image_field: ImageField, quality: int = 85):
     return compress_image(image_field, quality)
-
-
-def remove_file_from_system(
-    field: ImageField | FileField,
-) -> tuple[bool, Exception | None]:
-    """Remove file from system if exists and return success status"""
-    try:
-        if field:
-            os.remove(field.path)
-
-        return (True, None)
-
-    except Exception as e:
-        return (False, e)
 
 
 class DumpableModelMixin(models.Model):
@@ -358,10 +431,8 @@ class ModelCloudFileSupport(models.Model):
     class Meta:
         abstract = True
 
-    tracker = FieldTracker()
-
-    def save(self, *args, **kwargs):
-        updated = False
+    def upload_to_cloud(self):
+        # Call this from .save() or from signal
         for field_name in self.tracker.fields:
             if not self.tracker.has_changed(field_name):
                 continue
@@ -373,14 +444,6 @@ class ModelCloudFileSupport(models.Model):
             file_url = cloud_storage.upload_sync(file_field)
             if file_url:
                 setattr(self, f"{field_name}_cloud_url", file_url)
-                updated = True
-
-        super().save(*args, **kwargs)
-
-        if updated:
-            super().save(
-                update_fields=[f"{f}_cloud_url" for f in self.tracker.fields]
-            )
 
     def model_dump_with_cloud_url(self, dumped: dict) -> dict:
         for field_name in self.tracker.fields:
@@ -390,3 +453,10 @@ class ModelCloudFileSupport(models.Model):
             )
 
         return dumped
+
+
+class DumpableModelCloudFileSupport(DumpableModelMixin, ModelCloudFileSupport):
+    """Inherits both `DumpableModelMixin` and `ModelCloudFileSupport`"""
+
+    class Meta:
+        abstract = True

@@ -4,7 +4,10 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from project.settings import env_setting
 from project.utils import generate_document_filepath
-from project.utils.models import DumpableModelMixin
+from project.utils.models import (
+    DumpableModelCloudFileSupport,
+    DumpableModelMixin,
+)
 from users.models import CustomUser
 
 from external._enums import DocumentName, FeedbackRate, SenderRole
