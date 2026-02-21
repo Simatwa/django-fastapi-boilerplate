@@ -15,7 +15,7 @@ setup:
 
 developmentsuperuser:
 	python manage.py createsuperuser --username developer \
-	 --email developer@localhost.domain --noinput
+	 --email developer@domain.tld --noinput
 
 test:
 	python -m unittest discover -s api/tests -p 'test_*.py' -f -v

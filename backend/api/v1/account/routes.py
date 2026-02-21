@@ -278,8 +278,8 @@ async def reset_password(
     except CustomUser.DoesNotExist:
         # Let's not diclose about this for security reasons
         pass
-    finally:
-        return ProcessFeedback(
+
+    return ProcessFeedback(
             detail=(
                 "If an account with the provided identity exists, "
                 "a password reset token has been sent to the associated email"
