@@ -4,7 +4,19 @@ version = "0.1.0"
 description = "Jumpstart web application that uses Django and FastAPI in backend"
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = []
+dependencies = [
+    "django>=6.0.2",
+    "django-ckeditor>=6.7.3",
+    "django-cors-headers>=4.9.0",
+    "django-import-export[all]>=4.3.7",
+    "django-jazzmin>=3.0.2",
+    "django-model-utils==5.0.0",
+    "envist>=0.0.4",
+    "fastapi[standard]>=0.129.0",
+    "httpx>=0.28.1",
+    "pillow>=12.1.1",
+    "psycopg2>=2.9.11",
+]
 
 [project.urls]
 homepage = "https://github.com/Simatwa/django-fastapi-boilerplate"
