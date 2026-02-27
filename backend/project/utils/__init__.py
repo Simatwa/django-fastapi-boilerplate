@@ -19,7 +19,7 @@ cloud_storage = CloudStorage()
 def generate_document_filepath(instance, filename: str) -> str:
     filename, extension = os.path.splitext(filename)
     return (
-        f"{instance.__class__.__name__.lower()}/{filename}_{instance.id or ''}"
+        f"{instance.__class__.__name__.lower()}/{filename}_{instance.pk}"
         f"{extension}"
     )
 
